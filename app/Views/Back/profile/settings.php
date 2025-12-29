@@ -77,16 +77,17 @@
                     <div class="form-group">
                         <label for="theme">Tema</label>
                         <select class="form-control" id="theme" name="theme">
-                            <option value="light" <?= ($settings['theme'] ?? 'light') === 'light' ? 'selected' : '' ?>>
+                            <option value="light" <?= ($settings['theme'] ?? 'auto') === 'light' ? 'selected' : '' ?>>
                                 ☀️ Claro
                             </option>
-                            <option value="dark" <?= ($settings['theme'] ?? 'light') === 'dark' ? 'selected' : '' ?>>
+                            <option value="dark" <?= ($settings['theme'] ?? 'auto') === 'dark' ? 'selected' : '' ?>>
                                 🌙 Escuro
                             </option>
-                            <option value="auto" <?= ($settings['theme'] ?? 'light') === 'auto' ? 'selected' : '' ?>>
+                            <option value="auto" <?= ($settings['theme'] ?? 'auto') === 'auto' ? 'selected' : '' ?>>
                                 🔄 Automático (seguir sistema)
                             </option>
                         </select>
+                        <small class="form-text text-muted">O tema automático segue as configurações do seu sistema operacional</small>
                     </div>
                     
                     <div class="custom-control custom-switch">
@@ -184,4 +185,23 @@
     </div>
 </div>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('js') ?>
+<script>
+$(document).ready(function() {
+    // Sincroniza o select de tema com o localStorage e aplica preview
+    $('#theme').on('change', function() {
+        var theme = $(this).val();
+        // Aplica preview do tema imediatamente
+        if (typeof applyTheme === 'function') {
+            applyTheme(theme);
+        }
+    });
+    
+    // Sincroniza o valor inicial do select com localStorage
+    var savedTheme = localStorage.getItem('theme') || 'auto';
+    $('#theme').val(savedTheme);
+});
+</script>
 <?= $this->endSection() ?>

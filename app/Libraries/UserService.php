@@ -87,8 +87,8 @@ class UserService extends MyBaseService
     public function renderBtnActions(User $user): string
     {
         // Não permite ações no próprio usuário logado
-        $currentUser = session()->get('user');
-        $isSelf = $currentUser && $currentUser['id'] == $user->id;
+        $currentUserId = session()->get('user_id');
+        $isSelf = $currentUserId && $currentUserId == $user->id;
         
         $buttons = $this->renderBtnView($user);
         $buttons .= $this->renderBtnEdit($user);

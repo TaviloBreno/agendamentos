@@ -122,9 +122,9 @@
                 </thead>
                 <tbody>
                     <?php 
-                    $currentUser = session()->get('user');
+                    $currentUserId = session()->get('user_id');
                     foreach ($users as $user): 
-                        $isSelf = $currentUser && $currentUser['id'] == $user->id;
+                        $isSelf = $currentUserId && $currentUserId == $user->id;
                     ?>
                     <tr>
                         <td><?= esc($user->id) ?></td>
