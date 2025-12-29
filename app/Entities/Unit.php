@@ -100,6 +100,26 @@ class Unit extends Entity
     protected $datamap = [];
 
     // =========================================================================
+    // MÉTODO DE PROVA DE CONCEITO
+    // =========================================================================
+
+    /**
+     * Método de exemplo para demonstrar comportamento na Entity
+     * 
+     * PROVA DE CONCEITO:
+     * Este método só está disponível quando $returnType = Unit::class no Model.
+     * Se trocar para 'array' ou 'object', este método não existirá no retorno.
+     * 
+     * Para verificar no debug (dd), procure por 'validMethods' no dump.
+     * 
+     * @return string
+     */
+    public function lucio(): string
+    {
+        return 'Lúcio Antônio de Souza';
+    }
+
+    // =========================================================================
     // ACCESSORS (Getters) - Transformam dados ao OBTER
     // =========================================================================
 

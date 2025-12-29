@@ -10,19 +10,52 @@ use App\Entities\Unit;
  * UnitsController - Controller para gerenciar Unidades
  * 
  * =========================================================================
- * EXEMPLO COMPLETO: MODEL + ENTITY NO CODEIGNITER 4
+ * CRIAÇÃO VIA CLI:
+ * =========================================================================
+ * php spark make:controller Super/UnitsController
+ * 
+ * Isso cria: app/Controllers/Super/UnitsController.php
+ * Com namespace: App\Controllers\Super
+ * 
+ * =========================================================================
+ * HELPER model() vs new Model()
  * =========================================================================
  * 
- * Este controller demonstra como usar o UnitModel e a Entity Unit
- * para realizar operações CRUD com retorno orientado a objetos.
+ * OPÇÃO 1 - Helper model() (recomendado):
+ *   $units = model(UnitModel::class)->findAll();
+ *   - Usa o service container
+ *   - Reutiliza instância se já existir
+ *   - Mais limpo e testável
  * 
- * FLUXO DE DADOS:
- * ---------------
- * 1. Controller instancia o Model
- * 2. Model executa query no banco
- * 3. Model retorna Entity (objeto Unit) em vez de array
- * 4. Controller usa métodos da Entity para formatar/processar dados
- * 5. Controller envia Entity ou dados para a View
+ * OPÇÃO 2 - Instância direta:
+ *   $model = new UnitModel();
+ *   $units = $model->findAll();
+ *   - Cria nova instância sempre
+ *   - Útil quando precisa de múltiplas instâncias
+ * 
+ * =========================================================================
+ * RETURNTYPE: Entity vs array vs object
+ * =========================================================================
+ * 
+ * No UnitModel, a propriedade $returnType define o formato do retorno:
+ * 
+ * 1. $returnType = Unit::class (ENTITY - recomendado)
+ *    - Retorna objetos App\Entities\Unit
+ *    - Acesso: $unit->name, $unit->startHour()
+ *    - TEM métodos customizados da Entity
+ *    - TEM casting automático (json-array, dates)
+ * 
+ * 2. $returnType = 'array'
+ *    - Retorna arrays associativos
+ *    - Acesso: $unit['name'], $unit['email']
+ *    - NÃO tem métodos customizados
+ *    - NÃO tem casting automático
+ * 
+ * 3. $returnType = 'object'
+ *    - Retorna objetos stdClass
+ *    - Acesso: $unit->name, $unit->email
+ *    - NÃO tem métodos customizados
+ *    - NÃO tem casting automático
  * 
  * @package    App\Controllers\Super
  * @author     Sistema de Agendamentos
@@ -30,53 +63,233 @@ use App\Entities\Unit;
 class UnitsController extends BaseController
 {
     /**
-     * Instância do UnitModel
-     * 
-     * @var UnitModel
-     */
-    protected UnitModel $unitModel;
-
-    /**
-     * Construtor - Inicializa o Model
-     * 
-     * Boa prática: Injetar dependências no construtor
-     */
-    public function __construct()
-    {
-        // Instancia o Model uma vez para usar em todos os métodos
-        $this->unitModel = new UnitModel();
-    }
-
-    /**
      * Lista todas as unidades
      * 
-     * GET /admin/units
+     * GET /super/units
      * 
      * @return string
      */
     public function index(): string
     {
         /**
-         * BUSCAR TODOS OS REGISTROS
-         * =========================
-         * findAll() retorna um array de objetos Unit (não arrays!)
-         * porque configuramos $returnType = Unit::class no Model.
+         * USANDO O HELPER model()
+         * ========================
+         * model(UnitModel::class) retorna uma instância do UnitModel
+         * gerenciada pelo service container do CodeIgniter.
          * 
-         * @var array<Unit> $units
+         * findAll() retorna um array de objetos Unit porque
+         * configuramos $returnType = Unit::class no Model.
          */
-        $units = $this->unitModel->findAll();
-
+        $units = model(UnitModel::class)->findAll();
+        
         /**
-         * Alternativa: Buscar apenas unidades ativas
-         * Usando método customizado do Model
+         * DEBUG TEMPORÁRIO - Descomente para testar
+         * =========================================
+         * 
+         * dd() = dump and die (exibe e para execução)
+         * d()  = dump (exibe e continua execução)
+         * 
+         * TESTE 1: Ver retorno com Entity (padrão)
+         * No UnitModel: protected $returnType = Unit::class;
+         * Resultado: array de objetos App\Entities\Unit com métodos
          */
-        // $units = $this->unitModel->getActiveUnits();
-
+        // dd($units);
+        
         /**
-         * Alternativa: Buscar com paginação
+         * TESTE 2: Ver retorno com array
+         * No UnitModel: protected $returnType = 'array';
+         * Resultado: array de arrays associativos (sem métodos)
          */
-        // $units = $this->unitModel->paginate(10);
-        // $pager = $this->unitModel->pager;
+        // dd($units);
+        
+        /**
+         * TESTE 3: Ver retorno com object
+         * No UnitModel: protected $returnType = 'object';
+         * Resultado: array de stdClass (sem métodos customizados)
+         */
+        // dd($units);
+
+        $data = [
+            'title'       => 'Unidades | Sistema de Agendamentos',
+            'pageHeading' => 'Gerenciar Unidades',
+            'units'       => $units,
+        ];
+
+        return view('Back/Units/index', $data);
+    }
+
+    /**
+     * Exibe formulário de criação
+     * 
+     * GET /super/units/new
+     * 
+     * @return string
+     */
+    public function new(): string
+    {
+        $data = [
+            'title'       => 'Nova Unidade | Sistema',
+            'pageHeading' => 'Cadastrar Nova Unidade',
+        ];
+
+        return view('Back/Units/form', $data);
+    }
+
+    /**
+     * Processa criação de nova unidade
+     * 
+     * POST /super/units
+     * 
+     * @return \CodeIgniter\HTTP\RedirectResponse
+     */
+    public function create()
+    {
+        $model = model(UnitModel::class);
+        
+        $data = [
+            'name'         => $this->request->getPost('name'),
+            'email'        => $this->request->getPost('email'),
+            'phone'        => $this->request->getPost('phone'),
+            'coordinator'  => $this->request->getPost('coordinator'),
+            'address'      => $this->request->getPost('address'),
+            'services'     => json_encode($this->request->getPost('services') ?? []),
+            'start_time'   => $this->request->getPost('start_time'),
+            'end_time'     => $this->request->getPost('end_time'),
+            'service_time' => $this->request->getPost('service_time'),
+            'active'       => $this->request->getPost('active') ?? 0,
+        ];
+
+        $insertId = $model->insert($data);
+
+        if ($insertId === false) {
+            return redirect()->back()
+                           ->withInput()
+                           ->with('errors', $model->errors());
+        }
+
+        return redirect()->to(route_to('super.units.show', $insertId))
+                       ->with('success', 'Unidade cadastrada com sucesso!');
+    }
+
+    /**
+     * Exibe detalhes de uma unidade
+     * 
+     * GET /super/units/(:num)
+     * 
+     * @param int|string $id
+     * @return string|\CodeIgniter\HTTP\RedirectResponse
+     */
+    public function show($id)
+    {
+        $unit = model(UnitModel::class)->find($id);
+
+        if ($unit === null) {
+            return redirect()->to(route_to('super.units'))
+                           ->with('error', 'Unidade não encontrada.');
+        }
+
+        $data = [
+            'title'       => "{$unit->name} | Unidades",
+            'pageHeading' => $unit->name,
+            'unit'        => $unit,
+        ];
+
+        return view('Back/Units/show', $data);
+    }
+
+    /**
+     * Exibe formulário de edição
+     * 
+     * GET /super/units/(:num)/edit
+     * 
+     * @param int|string $id
+     * @return string|\CodeIgniter\HTTP\RedirectResponse
+     */
+    public function edit($id)
+    {
+        $unit = model(UnitModel::class)->find($id);
+
+        if ($unit === null) {
+            return redirect()->to(route_to('super.units'))
+                           ->with('error', 'Unidade não encontrada.');
+        }
+
+        $data = [
+            'title'       => "Editar {$unit->name} | Sistema",
+            'pageHeading' => "Editar: {$unit->name}",
+            'unit'        => $unit,
+        ];
+
+        return view('Back/Units/form', $data);
+    }
+
+    /**
+     * Processa atualização de unidade
+     * 
+     * PUT /super/units/(:num)
+     * 
+     * @param int|string $id
+     * @return \CodeIgniter\HTTP\RedirectResponse
+     */
+    public function update($id)
+    {
+        $model = model(UnitModel::class);
+        $unit  = $model->find($id);
+
+        if ($unit === null) {
+            return redirect()->to(route_to('super.units'))
+                           ->with('error', 'Unidade não encontrada.');
+        }
+
+        $data = [
+            'name'         => $this->request->getPost('name'),
+            'email'        => $this->request->getPost('email'),
+            'phone'        => $this->request->getPost('phone'),
+            'coordinator'  => $this->request->getPost('coordinator'),
+            'address'      => $this->request->getPost('address'),
+            'services'     => json_encode($this->request->getPost('services') ?? []),
+            'start_time'   => $this->request->getPost('start_time'),
+            'end_time'     => $this->request->getPost('end_time'),
+            'service_time' => $this->request->getPost('service_time'),
+            'active'       => $this->request->getPost('active') ?? 0,
+        ];
+
+        $updated = $model->update($id, $data);
+
+        if ($updated === false) {
+            return redirect()->back()
+                           ->withInput()
+                           ->with('errors', $model->errors());
+        }
+
+        return redirect()->to(route_to('super.units.show', $id))
+                       ->with('success', 'Unidade atualizada com sucesso!');
+    }
+
+    /**
+     * Remove uma unidade
+     * 
+     * DELETE /super/units/(:num)
+     * 
+     * @param int|string $id
+     * @return \CodeIgniter\HTTP\RedirectResponse
+     */
+    public function delete($id)
+    {
+        $model = model(UnitModel::class);
+        $unit  = $model->find($id);
+
+        if ($unit === null) {
+            return redirect()->to(route_to('super.units'))
+                           ->with('error', 'Unidade não encontrada.');
+        }
+
+        $model->delete($id);
+
+        return redirect()->to(route_to('super.units'))
+                       ->with('success', "Unidade '{$unit->name}' removida com sucesso!");
+    }
+}
 
         $data = [
             'title'       => 'Unidades | Sistema de Agendamentos',
