@@ -91,12 +91,13 @@ class TenantsController extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        $tenant->stats = $this->tenantModel->getTenantStats($id);
+        $stats = $this->tenantModel->getTenantStats($id);
 
         $data = [
             'title' => $tenant->name,
             'pageHeading' => 'Detalhes da Empresa',
             'tenant' => $tenant,
+            'stats' => $stats,
         ];
 
         return view('Back/Tenants/show', $data);
