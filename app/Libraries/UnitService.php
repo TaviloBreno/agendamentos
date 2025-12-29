@@ -51,6 +51,45 @@ use CodeIgniter\I18n\Time;
 class UnitService extends MyBaseService
 {
     /**
+     * Intervalos de tempo disponíveis para atendimento
+     * 
+     * =========================================================================
+     * ATENÇÃO: COMPATIBILIDADE COM PHP DateTime/DateInterval
+     * =========================================================================
+     * 
+     * As CHAVES deste array DEVEM ser strings válidas para:
+     * - DateTime::modify() → ex.: '+10 minutes'
+     * - DateInterval::createFromDateString() → ex.: '10 minutes'
+     * 
+     * VALORES VÁLIDOS (exemplos):
+     * - '10 minutes'  → 10 minutos
+     * - '15 minutes'  → 15 minutos
+     * - '30 minutes'  → 30 minutos
+     * - '1 hour'      → 1 hora
+     * - '2 hours'     → 2 horas
+     * 
+     * VALORES INVÁLIDOS (NÃO use):
+     * - 'dez minutos' → Strings em português
+     * - '10 min'      → Abreviações
+     * - '10min'       → Sem espaço
+     * - '1h'          → Formato incorreto
+     * 
+     * REFERÊNCIA:
+     * @link https://www.php.net/manual/en/datetime.formats.relative.php
+     * 
+     * @var array<string, string> Chave: valor para DateTime | Valor: rótulo para exibição
+     */
+    private static array $serviceTimes = [
+        '10 minutes' => '10 minutos',
+        '15 minutes' => '15 minutos',
+        '20 minutes' => '20 minutos',
+        '30 minutes' => '30 minutos',
+        '45 minutes' => '45 minutos',
+        '1 hour'     => '1 hora',
+        '2 hours'    => '2 horas',
+    ];
+
+    /**
      * Renderiza a tabela de Unidades para listagem
      * 
      * Recupera todas as unidades do banco, monta a tabela HTML
@@ -296,5 +335,104 @@ class UnitService extends MyBaseService
         }
         
         return $model->countAllResults();
+    }
+
+    /**
+     * Renderiza dropdown de intervalos de tempo para atendimento
+     * 
+     * =========================================================================
+     * FLUXO DE SELEÇÃO (PRIORIDADE)
+     * =========================================================================
+     * 
+     * 1. old('service_time') → Valor do POST (quando validação falha)
+     * 2. $serviceTime → Valor passado (geralmente $unit->service_time do banco)
+     * 3. null → Nenhuma opção pré-selecionada
+     * 
+     * IMPORTANTE: Se o valor salvo no banco NÃO existir como chave em
+     * $serviceTimes, NENHUMA opção será selecionada automaticamente.
+     * Isso pode indicar que alguém salvou um valor inválido diretamente
+     * no banco ou que as opções foram alteradas depois.
+     * 
+     * =========================================================================
+     * EXEMPLO DE USO
+     * =========================================================================
+     * 
+     * No Controller (edit):
+     *   $data['timesInterval'] = $this->unitService->renderTimesInterval($unit->service_time);
+     * 
+     * Na View:
+     *   <?= $timesInterval ?>
+     * 
+     * @param string|null $serviceTime Valor atual do banco (para pré-selecionar)
+     * @return string HTML do <select> completo via form_dropdown()
+     */
+    public function renderTimesInterval(?string $serviceTime = null): string
+    {
+        // Carrega o Form Helper (redundante se já carregado, mas garante)
+        helper('form');
+        
+        /**
+         * MONTA O ARRAY DE OPTIONS
+         * ========================
+         * 
+         * Estrutura final:
+         * [
+         *     ''           => 'Escolha',
+         *     '10 minutes' => '10 minutos',
+         *     '15 minutes' => '15 minutos',
+         *     ...
+         * ]
+         */
+        $options = ['' => 'Escolha'] + self::$serviceTimes;
+        
+        /**
+         * DETERMINA O VALOR SELECIONADO
+         * =============================
+         * 
+         * old() verifica se há dados do POST anterior (após validação falhar).
+         * Se não houver, usa o valor do banco ($serviceTime).
+         * 
+         * IMPORTANTE: O segundo parâmetro de old() é o fallback.
+         */
+        $selected = old('service_time', $serviceTime);
+        
+        /**
+         * RETORNA O SELECT VIA FORM_DROPDOWN
+         * ==================================
+         * 
+         * form_dropdown() gera:
+         * <select name="service_time" class="form-control" required="required">
+         *     <option value="">Escolha</option>
+         *     <option value="10 minutes">10 minutos</option>
+         *     ...
+         * </select>
+         * 
+         * O parâmetro 'extra' aceita array de atributos ou string.
+         * 
+         * Assinatura: form_dropdown($name, $options, $selected, $extra)
+         */
+        return form_dropdown(
+            'service_time',  // name
+            $options,        // options array
+            $selected,       // selected value
+            [                // extra attributes
+                'class'    => 'form-control',
+                'id'       => 'service_time',
+                'required' => 'required',
+            ]
+        );
+    }
+
+    /**
+     * Retorna os intervalos de tempo disponíveis
+     * 
+     * Útil para validação ou outras operações que precisam
+     * verificar se um valor é válido.
+     * 
+     * @return array<string, string>
+     */
+    public static function getServiceTimes(): array
+    {
+        return self::$serviceTimes;
     }
 }

@@ -267,25 +267,27 @@
                         </label>
                         <?php
                         /**
-                         * PLACEHOLDER PARA SELECT
-                         * =======================
-                         * Na próxima aula, este input será substituído por um
-                         * <select> com opções: 10 min, 15 min, 30 min, 01:00
+                         * DROPDOWN DE SERVICE_TIME
+                         * ========================
                          * 
-                         * Por enquanto, mantemos como input text.
+                         * O select é renderizado pela UnitService::renderTimesInterval().
+                         * Isso mantém a view limpa e a lógica centralizada na Service.
+                         * 
+                         * A variável $timesInterval contém o HTML completo do <select>
+                         * gerado via form_dropdown(), incluindo:
+                         * - class="form-control"
+                         * - id="service_time"
+                         * - required="required"
+                         * - Opções de $serviceTimes
+                         * - Valor selecionado (old() ou $unit->service_time)
+                         * 
+                         * @see UnitService::renderTimesInterval()
+                         * @see UnitService::$serviceTimes
                          */
                         ?>
-                        <input type="text" 
-                               class="form-control" 
-                               id="service_time" 
-                               name="service_time" 
-                               value="<?= esc(old('service_time', $unit->service_time ?? '30')) ?>"
-                               placeholder="Ex: 30"
-                               maxlength="20"
-                               required>
+                        <?= $timesInterval ?>
                         <small class="form-text text-muted">
-                            Duração de cada atendimento (em minutos)
-                            <!-- TODO: Transformar em dropdown na próxima aula -->
+                            Duração de cada atendimento (intervalo entre agendamentos)
                         </small>
                     </div>
                 </div>

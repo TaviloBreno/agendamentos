@@ -161,25 +161,71 @@ class UnitModel extends Model
     /**
      * Regras de validação
      * 
+     * =========================================================================
+     * VALIDAÇÃO PARA INSERT E UPDATE
+     * =========================================================================
+     * 
      * Aplicadas automaticamente em insert() e update() quando
      * $skipValidation é false (padrão).
+     * 
+     * -------------------------------------------------------------------------
+     * REGRA is_unique COM IGNORE PARA UPDATE
+     * -------------------------------------------------------------------------
+     * 
+     * Formato: is_unique[tabela.coluna,coluna_ignore,{placeholder}]
+     * 
+     * Exemplo: is_unique[units.name,id,{id}]
+     * 
+     * Explicação:
+     * - units.name     → Verifica unicidade na coluna 'name' da tabela 'units'
+     * - id,{id}        → Ignora o registro onde 'id' = valor passado em {id}
+     * 
+     * O placeholder {id} é substituído automaticamente pelo Model quando:
+     * - update($id, $data) → {id} recebe o valor de $id
+     * - insert($data) → {id} fica vazio (valida normalmente)
+     * 
+     * Isso permite que no UPDATE o próprio registro não "viole" a unicidade.
+     * 
+     * REFERÊNCIA:
+     * @link https://codeigniter.com/user_guide/libraries/validation.html#is-unique
      * 
      * @var array<string, string>
      */
     protected $validationRules = [
-        'name'         => 'required|min_length[3]|max_length[70]',
-        'email'        => 'required|valid_email|max_length[100]',
-        'phone'        => 'required|max_length[14]',
-        'coordinator'  => 'required|max_length[70]',
-        'address'      => 'required|max_length[255]',
-        'start_time'   => 'required|max_length[5]',
-        'end_time'     => 'required|max_length[5]',
+        // ID: apenas para update, permite vazio no insert
+        'id'           => 'permit_empty|is_natural_no_zero',
+        
+        // Nome: obrigatório, 3-70 chars, único ignorando próprio registro
+        'name'         => 'required|min_length[3]|max_length[70]|is_unique[units.name,id,{id}]',
+        
+        // E-mail: obrigatório, válido, único ignorando próprio registro
+        'email'        => 'required|valid_email|max_length[100]|is_unique[units.email,id,{id}]',
+        
+        // Telefone: obrigatório, formato (XX) XXXXX-XXXX = 14 chars, único
+        'phone'        => 'required|exact_length[14]|is_unique[units.phone,id,{id}]',
+        
+        // Coordenador: opcional, máximo 70 chars
+        'coordinator'  => 'permit_empty|max_length[70]',
+        
+        // Endereço: obrigatório, máximo 128 chars
+        'address'      => 'required|max_length[128]',
+        
+        // Horários: obrigatório, formato HH:MM via regex
+        'start_time'   => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
+        'end_time'     => 'required|regex_match[/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/]',
+        
+        // Tempo de atendimento: obrigatório, máximo 20 chars
         'service_time' => 'required|max_length[20]',
-        'active'       => 'permit_empty|in_list[0,1]',
+        
+        // Status ativo: obrigatório, apenas 0 ou 1
+        'active'       => 'required|in_list[0,1]',
     ];
 
     /**
      * Mensagens de erro personalizadas
+     * 
+     * Organizadas por campo, depois por regra.
+     * Mensagens em português para melhor UX.
      * 
      * @var array<string, array<string, string>>
      */
@@ -188,28 +234,41 @@ class UnitModel extends Model
             'required'   => 'O nome da unidade é obrigatório.',
             'min_length' => 'O nome deve ter pelo menos 3 caracteres.',
             'max_length' => 'O nome não pode exceder 70 caracteres.',
+            'is_unique'  => 'Já existe uma unidade cadastrada com este nome.',
         ],
         'email' => [
             'required'    => 'O e-mail é obrigatório.',
-            'valid_email' => 'Informe um e-mail válido.',
+            'valid_email' => 'Informe um endereço de e-mail válido.',
+            'max_length'  => 'O e-mail não pode exceder 100 caracteres.',
+            'is_unique'   => 'Este e-mail já está sendo usado por outra unidade.',
         ],
         'phone' => [
-            'required' => 'O telefone é obrigatório.',
+            'required'     => 'O telefone é obrigatório.',
+            'exact_length' => 'O telefone deve ter exatamente 14 caracteres (formato: (XX) XXXXX-XXXX).',
+            'is_unique'    => 'Este telefone já está cadastrado em outra unidade.',
         ],
         'coordinator' => [
-            'required' => 'O nome do coordenador é obrigatório.',
+            'max_length' => 'O nome do coordenador não pode exceder 70 caracteres.',
         ],
         'address' => [
-            'required' => 'O endereço é obrigatório.',
+            'required'   => 'O endereço é obrigatório.',
+            'max_length' => 'O endereço não pode exceder 128 caracteres.',
         ],
         'start_time' => [
-            'required' => 'O horário de início é obrigatório.',
+            'required'    => 'O horário de início é obrigatório.',
+            'regex_match' => 'O horário de início deve estar no formato HH:MM (ex: 08:00).',
         ],
         'end_time' => [
-            'required' => 'O horário de término é obrigatório.',
+            'required'    => 'O horário de término é obrigatório.',
+            'regex_match' => 'O horário de término deve estar no formato HH:MM (ex: 18:00).',
         ],
         'service_time' => [
-            'required' => 'O tempo de atendimento é obrigatório.',
+            'required'   => 'O tempo de atendimento é obrigatório.',
+            'max_length' => 'O tempo de atendimento não pode exceder 20 caracteres.',
+        ],
+        'active' => [
+            'required' => 'O status (ativo/inativo) é obrigatório.',
+            'in_list'  => 'O status deve ser 0 (inativo) ou 1 (ativo).',
         ],
     ];
 

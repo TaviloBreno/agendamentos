@@ -181,10 +181,13 @@ class UnitsController extends BaseController
      * =========================================================================
      * 
      * 1. Busca a unidade via findOrFail() (404 automático se não existir)
-     * 2. Monta array $data com título e entity
-     * 3. Renderiza view Back/Units/edit.php
+     * 2. Renderiza dropdown de service_time via UnitService
+     * 3. Monta array $data com título, entity e dropdown renderizado
+     * 4. Renderiza view Back/Units/edit.php
      * 
      * A view edit.php exibe o formulário preenchido com dados da $unit.
+     * O dropdown de service_time já vem pronto da Service, mantendo
+     * a view limpa e a lógica centralizada.
      * 
      * @param int $id ID da unidade
      * @return string HTML da view
@@ -195,9 +198,12 @@ class UnitsController extends BaseController
         $unit = $this->unitModel->findOrFail($id);
 
         $data = [
-            'title'       => "Editar Unidade",
-            'pageHeading' => "Editar: {$unit->name}",
-            'unit'        => $unit,
+            'title'         => 'Editar Unidade',
+            'pageHeading'   => "Editar: {$unit->name}",
+            'unit'          => $unit,
+            // Dropdown de tempo de atendimento renderizado pela Service
+            // Passa o valor atual para pré-selecionar a opção correta
+            'timesInterval' => $this->unitService->renderTimesInterval($unit->service_time),
         ];
 
         return view('Back/Units/edit', $data);
@@ -208,6 +214,21 @@ class UnitsController extends BaseController
      * 
      * PUT /super/units/(:num)
      * 
+     * =========================================================================
+     * FLUXO DE VALIDAÇÃO E PERSISTÊNCIA
+     * =========================================================================
+     * 
+     * 1. Busca a unidade via findOrFail() (segurança: evita manipulação de URL)
+     * 2. Coleta dados do POST
+     * 3. Tenta atualizar via Model (validação automática pelas rules)
+     * 4. Se falhar → redirect back com withInput() e erros
+     * 5. Se sucesso → redirect para listagem com flash message
+     * 
+     * IMPORTANTE sobre is_unique no UPDATE:
+     * O Model usa o placeholder {id} nas rules. Quando chamamos update($id, $data),
+     * o CI4 automaticamente substitui {id} pelo valor de $id, permitindo que
+     * o próprio registro não "viole" a regra de unicidade.
+     * 
      * Requer token CSRF válido (configurado em Config/Filters.php).
      * 
      * @param int $id ID da unidade
@@ -215,9 +236,25 @@ class UnitsController extends BaseController
      */
     public function update(int $id)
     {
-        // findOrFail() lança 404 se não existir
+        /**
+         * BUSCA O REGISTRO EXISTENTE
+         * ==========================
+         * 
+         * Mesmo que já tenhamos o $id, buscamos do banco para:
+         * 1. Garantir que o registro existe (findOrFail lança 404)
+         * 2. Evitar manipulação de HTML/URL por usuário mal-intencionado
+         * 3. Ter acesso ao nome original para mensagens
+         */
         $unit = $this->unitModel->findOrFail($id);
 
+        /**
+         * COLETA DADOS DO POST
+         * ====================
+         * 
+         * Usamos getPost() para cada campo esperado.
+         * O campo 'active' usa ?? 0 como fallback (técnica do hidden).
+         * O campo 'services' é convertido para JSON.
+         */
         $data = [
             'name'         => $this->request->getPost('name'),
             'email'        => $this->request->getPost('email'),
@@ -231,16 +268,41 @@ class UnitsController extends BaseController
             'active'       => $this->request->getPost('active') ?? 0,
         ];
 
+        /**
+         * TENTA ATUALIZAR (COM VALIDAÇÃO AUTOMÁTICA)
+         * ==========================================
+         * 
+         * O Model valida automaticamente usando $validationRules.
+         * O placeholder {id} nas regras is_unique é substituído por $id.
+         * 
+         * Se a validação falhar, update() retorna false e os erros
+         * ficam disponíveis em $this->unitModel->errors().
+         */
         $updated = $this->unitModel->update($id, $data);
 
         if ($updated === false) {
+            /**
+             * VALIDAÇÃO FALHOU
+             * ================
+             * 
+             * - back() → Volta para a página anterior (edit)
+             * - withInput() → Mantém os dados digitados (para old())
+             * - with('errors', ...) → Flash data com array de erros
+             */
             return redirect()->back()
                            ->withInput()
                            ->with('errors', $this->unitModel->errors());
         }
 
-        return redirect()->to(route_to('super.units.show', $id))
-                       ->with('success', 'Unidade atualizada com sucesso!');
+        /**
+         * SUCESSO
+         * =======
+         * 
+         * Redireciona para a listagem com mensagem de sucesso.
+         * Usamos route_to() para gerar a URL da rota nomeada.
+         */
+        return redirect()->to(route_to('super.units'))
+                       ->with('success', "Unidade '{$unit->name}' atualizada com sucesso!");
     }
 
     /**
