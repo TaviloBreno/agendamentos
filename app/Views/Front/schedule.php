@@ -327,7 +327,7 @@
                                     <div class="control has-icons-left">
                                         <input class="input" type="text" name="client_name" id="client_name" 
                                                placeholder="Seu nome completo" required
-                                               value="<?= session()->get('user')['name'] ?? '' ?>">
+                                               value="<?= session()->get('user')?->name ?? '' ?>">
                                         <span class="icon is-left"><i class="fas fa-user"></i></span>
                                     </div>
                                     <p class="help is-danger" id="error-client_name"></p>
@@ -340,7 +340,7 @@
                                     <div class="control has-icons-left">
                                         <input class="input" type="email" name="client_email" id="client_email" 
                                                placeholder="seu@email.com" required
-                                               value="<?= session()->get('user')['email'] ?? '' ?>">
+                                               value="<?= session()->get('user')?->email ?? '' ?>">
                                         <span class="icon is-left"><i class="fas fa-envelope"></i></span>
                                     </div>
                                     <p class="help is-danger" id="error-client_email"></p>

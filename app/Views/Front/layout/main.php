@@ -409,13 +409,13 @@
                         <div class="navbar-item has-dropdown is-hoverable">
                             <a class="navbar-link">
                                 <i class="fas fa-user-circle mr-1"></i>
-                                <?= esc($user['name']) ?>
+                                <?= esc($user->name) ?>
                             </a>
                             <div class="navbar-dropdown is-right">
                                 <a class="navbar-item" href="<?= base_url('meus-agendamentos') ?>">
                                     <i class="fas fa-calendar-alt mr-2"></i> Meus Agendamentos
                                 </a>
-                                <?php if (in_array($user['role'] ?? '', ['super', 'admin'])): ?>
+                                <?php if (in_array($user->role ?? '', ['super', 'admin'])): ?>
                                 <a class="navbar-item" href="<?= route_to('super.home') ?>">
                                     <i class="fas fa-cogs mr-2"></i> Painel Admin
                                 </a>

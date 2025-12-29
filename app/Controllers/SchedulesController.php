@@ -383,7 +383,7 @@ class SchedulesController extends BaseController
         
         // Buscar agendamentos do usuário por email
         $appointments = $this->appointmentModel
-            ->where('client_email', $user['email'])
+            ->where('client_email', $user->email)
             ->orderBy('date', 'DESC')
             ->orderBy('start_time', 'DESC')
             ->findAll();
