@@ -54,7 +54,7 @@ class ConversationModel extends Model
             ->select('c.*')
             ->join('conversation_participants cp', 'cp.conversation_id = c.id')
             ->where('cp.user_id', $userId)
-            ->whereNull('cp.left_at')
+            ->where('cp.left_at IS NULL')
             ->orderBy('c.updated_at', 'DESC')
             ->limit($limit);
 
@@ -85,8 +85,8 @@ class ConversationModel extends Model
             ->where('c.type', 'direct')
             ->where('cp1.user_id', $userId1)
             ->where('cp2.user_id', $userId2)
-            ->whereNull('cp1.left_at')
-            ->whereNull('cp2.left_at');
+            ->where('cp1.left_at IS NULL')
+            ->where('cp2.left_at IS NULL');
 
         $existing = $builder->get()->getRowArray();
 

@@ -20,7 +20,7 @@ class Notification extends MyBaseEntity
     /**
      * Tipos de notificação e seus ícones
      */
-    protected static array $typeConfig = [
+    public static array $typeConfig = [
         'appointment' => ['icon' => 'fa-calendar-check', 'color' => 'primary'],
         'message'     => ['icon' => 'fa-envelope', 'color' => 'info'],
         'system'      => ['icon' => 'fa-cog', 'color' => 'secondary'],
