@@ -290,6 +290,36 @@ class Appointment extends MyBaseEntity
         return model(\App\Models\ServiceModel::class)->find($this->service_id);
     }
 
+    /**
+     * Retorna o cliente do agendamento
+     * 
+     * Primeiro tenta buscar pelo email na tabela de clientes,
+     * se não encontrar, retorna um objeto com os dados inline
+     * 
+     * @return \App\Entities\Client|object|null
+     */
+    public function getClient()
+    {
+        // Tenta buscar cliente real pelo email
+        if ($this->client_email) {
+            $client = model(\App\Models\ClientModel::class)
+                ->where('email', $this->client_email)
+                ->first();
+            
+            if ($client) {
+                return $client;
+            }
+        }
+
+        // Retorna objeto com os dados inline do agendamento
+        return (object) [
+            'id'    => null,
+            'name'  => $this->client_name,
+            'email' => $this->client_email,
+            'phone' => $this->client_phone,
+        ];
+    }
+
     // =========================================================================
     // MÉTODOS ESTÁTICOS
     // =========================================================================

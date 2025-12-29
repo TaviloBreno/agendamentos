@@ -24,6 +24,10 @@ class ProfileController extends BaseController
         $userId = session()->get('user_id');
         $user = $this->userModel->find($userId);
 
+        if (!$user) {
+            return redirect()->to('/login')->with('error', 'Sessão expirada. Faça login novamente.');
+        }
+
         return view('back/profile/index', [
             'title' => 'Meu Perfil',
             'user'  => $user,
@@ -37,6 +41,10 @@ class ProfileController extends BaseController
     {
         $userId = session()->get('user_id');
         $user = $this->userModel->find($userId);
+
+        if (!$user) {
+            return redirect()->to('/login')->with('error', 'Sessão expirada. Faça login novamente.');
+        }
 
         return view('back/profile/settings', [
             'title'    => 'Configurações',
