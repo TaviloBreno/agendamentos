@@ -56,10 +56,6 @@
 <?= $this->section('content') ?>
 
 <!-- Page Heading -->
-<!-- 
-    Demonstração de acesso à variável com tratamento seguro:
-    Se $pageHeading não existir, usa 'Dashboard' como fallback
--->
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">
         <?= isset($pageHeading) ? esc($pageHeading) : 'Dashboard' ?>
@@ -67,6 +63,10 @@
     <?php if (canAccess('reports')): ?>
     <a href="<?= route_to('super.reports') ?>" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
         <i class="fas fa-chart-bar fa-sm text-white-50"></i> Gerar Relatório
+    </a>
+    <?php elseif (isset($isUserDashboard) && $isUserDashboard): ?>
+    <a href="<?= route_to('schedule') ?>" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+        <i class="fas fa-plus fa-sm text-white-50"></i> Novo Agendamento
     </a>
     <?php endif; ?>
 </div>
@@ -81,10 +81,9 @@
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                            Total de Agendamentos
+                            <?= isset($isUserDashboard) && $isUserDashboard ? 'Meus Agendamentos' : 'Total de Agendamentos' ?>
                         </div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">
-                            <!-- Acesso direto à variável com fallback -->
                             <?= isset($totalAgendamentos) ? number_format($totalAgendamentos) : '0' ?>
                         </div>
                     </div>
@@ -103,7 +102,7 @@
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                            Agendamentos Hoje
+                            <?= isset($isUserDashboard) && $isUserDashboard ? 'Meus Agendamentos Hoje' : 'Agendamentos Hoje' ?>
                         </div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">
                             <?= isset($agendamentosHoje) ? $agendamentosHoje : '0' ?>
@@ -117,7 +116,50 @@
         </div>
     </div>
 
-    <!-- Card - Clientes Ativos -->
+    <?php if (isset($isUserDashboard) && $isUserDashboard): ?>
+    <!-- Card - Novo Agendamento (para usuário) -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2 stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Agendar Horário
+                        </div>
+                        <a href="<?= route_to('schedule') ?>" class="btn btn-info btn-sm">
+                            <i class="fas fa-plus mr-1"></i> Novo
+                        </a>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-plus-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card - Ver Agendamentos -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2 stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Minha Agenda
+                        </div>
+                        <a href="<?= route_to('admin.my.appointments') ?>" class="btn btn-warning btn-sm">
+                            <i class="fas fa-list mr-1"></i> Ver
+                        </a>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-list-alt fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php else: ?>
+    <!-- Card - Clientes Ativos (para admin/super) -->
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card border-left-info shadow h-100 py-2 stat-card">
             <div class="card-body">
@@ -148,7 +190,6 @@
                             Versão do Sistema
                         </div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">
-                            <!-- Usando null coalescing operator (PHP 7+) -->
                             <?= $systemVersion ?? '1.0.0' ?>
                         </div>
                     </div>
@@ -159,6 +200,7 @@
             </div>
         </div>
     </div>
+    <?php endif; ?>
 
 </div>
 
@@ -174,17 +216,75 @@
                 </h6>
             </div>
             <div class="card-body">
-                <!-- Demonstração de acesso à variável $userName -->
                 <p class="mb-2">
                     <strong>Olá, <?= isset($userName) ? esc($userName) : 'Usuário' ?>!</strong>
                 </p>
+                <?php if (isset($isUserDashboard) && $isUserDashboard): ?>
+                <p>Aqui você pode gerenciar seus agendamentos de forma simples e prática.</p>
+                <p class="mb-0">Use o menu lateral ou os botões acima para navegar.</p>
+                <?php else: ?>
                 <p>Este é o painel administrativo do sistema de agendamentos.</p>
                 <p class="mb-0">Utilize o menu lateral para navegar entre as funcionalidades.</p>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 
-    <!-- Card - Últimos Agendamentos (demonstração de array) -->
+    <?php if (isset($isUserDashboard) && $isUserDashboard): ?>
+    <!-- Card - Próximos Agendamentos (para usuário) -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow welcome-card">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-success">
+                    <i class="fas fa-calendar-alt mr-2"></i>Próximos Agendamentos
+                </h6>
+                <a href="<?= route_to('admin.my.appointments') ?>" class="btn btn-sm btn-outline-success">
+                    Ver todos
+                </a>
+            </div>
+            <div class="card-body">
+                <?php if (isset($proximosAgendamentos) && count($proximosAgendamentos) > 0): ?>
+                    <div class="list-group list-group-flush">
+                        <?php foreach ($proximosAgendamentos as $agendamento): ?>
+                            <a href="<?= route_to('admin.my.appointments.show', $agendamento->id) ?>" 
+                               class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">
+                                        <i class="far fa-calendar-alt text-primary mr-2"></i>
+                                        <?= date('d/m/Y', strtotime($agendamento->date)) ?>
+                                    </h6>
+                                    <small class="text-muted">
+                                        <?= date('H:i', strtotime($agendamento->start_time)) ?>
+                                    </small>
+                                </div>
+                                <small class="text-muted">
+                                    <?php
+                                    $statusLabels = [
+                                        'scheduled'  => '<span class="badge badge-info">Agendado</span>',
+                                        'confirmed'  => '<span class="badge badge-primary">Confirmado</span>',
+                                        'completed'  => '<span class="badge badge-success">Concluído</span>',
+                                        'cancelled'  => '<span class="badge badge-danger">Cancelado</span>',
+                                    ];
+                                    echo $statusLabels[$agendamento->status] ?? $agendamento->status;
+                                    ?>
+                                </small>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="text-center py-4">
+                        <i class="fas fa-calendar-times fa-3x text-gray-300 mb-3"></i>
+                        <p class="text-muted mb-0">Nenhum agendamento próximo.</p>
+                        <a href="<?= route_to('schedule') ?>" class="btn btn-primary btn-sm mt-2">
+                            <i class="fas fa-plus mr-1"></i> Fazer Agendamento
+                        </a>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    <?php else: ?>
+    <!-- Card - Últimos Agendamentos (para admin/super) -->
     <div class="col-lg-6 mb-4">
         <div class="card shadow welcome-card">
             <div class="card-header py-3">
@@ -193,8 +293,7 @@
                 </h6>
             </div>
             <div class="card-body">
-                <!-- Demonstração de iteração sobre array vindo do controller -->
-                <?php if (isset($ultimosAgendamentos) && is_array($ultimosAgendamentos) && count($ultimosAgendamentos) > 0): ?>
+                <?php if (isset($ultimosAgendamentos) && count($ultimosAgendamentos) > 0): ?>
                     <div class="table-responsive">
                         <table class="table table-sm table-borderless mb-0">
                             <thead>
@@ -207,11 +306,11 @@
                             <tbody>
                                 <?php foreach ($ultimosAgendamentos as $agendamento): ?>
                                     <tr>
-                                        <td><?= esc($agendamento['cliente']) ?></td>
-                                        <td><?= esc($agendamento['data']) ?></td>
+                                        <td><?= esc($agendamento->client_name ?? 'N/A') ?></td>
+                                        <td><?= date('d/m/Y', strtotime($agendamento->date)) ?></td>
                                         <td>
                                             <span class="badge badge-primary">
-                                                <?= esc($agendamento['hora']) ?>
+                                                <?= date('H:i', strtotime($agendamento->start_time)) ?>
                                             </span>
                                         </td>
                                     </tr>
@@ -228,6 +327,7 @@
             </div>
         </div>
     </div>
+    <?php endif; ?>
 
 </div>
 

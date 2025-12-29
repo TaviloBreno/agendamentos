@@ -109,6 +109,7 @@
                 </a>
             </li>
 
+            <?php if (canAccess('units') || canAccess('services') || canAccess('professionals')): ?>
             <!-- Divider -->
             <hr class="sidebar-divider">
 
@@ -146,7 +147,9 @@
                 </a>
             </li>
             <?php endif; ?>
+            <?php endif; ?>
 
+            <?php if (canAccess('appointments') || canAccess('clients') || canAccess('my_appointments')): ?>
             <!-- Divider -->
             <hr class="sidebar-divider">
 
@@ -156,11 +159,21 @@
             </div>
 
             <?php if (canAccess('appointments')): ?>
-            <!-- Nav Item - Agenda -->
+            <!-- Nav Item - Agenda (Admin/Super) -->
             <li class="nav-item <?= url_is('super/appointments*') ? 'active' : '' ?>">
                 <a class="nav-link" href="<?= route_to('super.appointments') ?>">
                     <i class="fas fa-fw fa-calendar-alt"></i>
                     <span>Agenda</span>
+                </a>
+            </li>
+            <?php endif; ?>
+
+            <?php if (canAccess('my_appointments') && !canAccess('appointments')): ?>
+            <!-- Nav Item - Meus Agendamentos (apenas para usuário comum) -->
+            <li class="nav-item <?= url_is('admin/my-appointments*') ? 'active' : '' ?>">
+                <a class="nav-link" href="<?= route_to('admin.my.appointments') ?>">
+                    <i class="fas fa-fw fa-calendar-check"></i>
+                    <span>Meus Agendamentos</span>
                 </a>
             </li>
             <?php endif; ?>
@@ -174,30 +187,26 @@
                 </a>
             </li>
             <?php endif; ?>
+            <?php endif; ?>
 
+            <?php if (canAccess('whatsapp') || canAccess('reports')): ?>
             <!-- Divider -->
             <hr class="sidebar-divider">
 
             <!-- Heading -->
             <div class="sidebar-heading">
-                Comunicação
+                Relatórios & Comunicação
             </div>
 
-            <!-- Nav Item - Mensagens -->
-            <li class="nav-item <?= url_is('admin/messages*') ? 'active' : '' ?>">
-                <a class="nav-link" href="<?= route_to('admin.messages') ?>">
-                    <i class="fas fa-fw fa-envelope"></i>
-                    <span>Mensagens</span>
+            <?php if (canAccess('reports')): ?>
+            <!-- Nav Item - Relatórios -->
+            <li class="nav-item <?= url_is('super/reports*') ? 'active' : '' ?>">
+                <a class="nav-link" href="<?= route_to('super.reports') ?>">
+                    <i class="fas fa-fw fa-chart-bar"></i>
+                    <span>Relatórios</span>
                 </a>
             </li>
-
-            <!-- Nav Item - Notificações -->
-            <li class="nav-item <?= url_is('admin/notifications*') ? 'active' : '' ?>">
-                <a class="nav-link" href="<?= route_to('admin.notifications') ?>">
-                    <i class="fas fa-fw fa-bell"></i>
-                    <span>Notificações</span>
-                </a>
-            </li>
+            <?php endif; ?>
 
             <?php if (canAccess('whatsapp')): ?>
             <!-- Nav Item - WhatsApp -->
@@ -208,15 +217,6 @@
                 </a>
             </li>
             <?php endif; ?>
-
-            <?php if (canAccess('reports')): ?>
-            <!-- Nav Item - Relatórios -->
-            <li class="nav-item <?= url_is('super/reports*') ? 'active' : '' ?>">
-                <a class="nav-link" href="<?= route_to('super.reports') ?>">
-                    <i class="fas fa-fw fa-chart-bar"></i>
-                    <span>Relatórios</span>
-                </a>
-            </li>
             <?php endif; ?>
 
             <?php if (canAccess('users') || canAccess('tenants')): ?>
