@@ -325,6 +325,30 @@ $routes->group('super', ['namespace' => 'App\Controllers\Super', 'filter' => 'au
         // DELETE /super/users/(:num) → Remove usuário
         $routes->delete('(:num)', 'UsersController::delete/$1', ['as' => 'super.users.delete']);
     });
+    
+    // -----------------------------------------------------------------
+    // Rotas de Relatórios (Reports)
+    // -----------------------------------------------------------------
+    $routes->group('reports', static function ($routes) {
+        
+        // GET /super/reports → Dashboard de relatórios
+        $routes->get('/', 'ReportsController::index', ['as' => 'super.reports']);
+        
+        // GET /super/reports/appointments → Relatório de agendamentos
+        $routes->get('appointments', 'ReportsController::appointments', ['as' => 'super.reports.appointments']);
+        
+        // GET /super/reports/clients → Relatório de clientes
+        $routes->get('clients', 'ReportsController::clients', ['as' => 'super.reports.clients']);
+        
+        // GET /super/reports/financial → Relatório financeiro
+        $routes->get('financial', 'ReportsController::financial', ['as' => 'super.reports.financial']);
+        
+        // GET /super/reports/chart → Dados JSON para gráficos
+        $routes->get('chart', 'ReportsController::chartData', ['as' => 'super.reports.chart']);
+        
+        // GET /super/reports/export → Exportar relatórios em CSV
+        $routes->get('export', 'ReportsController::export', ['as' => 'super.reports.export']);
+    });
 });
 
 /**
