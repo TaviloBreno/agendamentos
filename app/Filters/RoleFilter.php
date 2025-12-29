@@ -75,10 +75,11 @@ class RoleFilter implements FilterInterface
         
         // Funcionalidades para todos os usuários autenticados
         'all' => [
-            'dashboard',     // Dashboard/Home
-            'profile',       // Perfil do usuário
-            'notifications', // Notificações
-            'messages',      // Mensagens
+            'dashboard',        // Dashboard/Home
+            'profile',          // Perfil do usuário
+            'notifications',    // Notificações
+            'messages',         // Mensagens
+            'my_appointments',  // Meus Agendamentos (próprios do usuário)
         ],
     ];
 
