@@ -242,107 +242,49 @@
                         </li>
 
                         <!-- Nav Item - Alerts -->
-                        <li class="nav-item dropdown no-arrow mx-1">
+                        <li class="nav-item dropdown no-arrow mx-1" id="notificationsDropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-bell fa-fw"></i>
                                 <!-- Counter - Alerts -->
-                                <span class="badge badge-danger badge-counter">3+</span>
+                                <span class="badge badge-danger badge-counter notification-count" style="display: none;">0</span>
                             </a>
                             <!-- Dropdown - Alerts -->
                             <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                 aria-labelledby="alertsDropdown">
-                                <h6 class="dropdown-header">
-                                    Central de Alertas
+                                <h6 class="dropdown-header d-flex justify-content-between align-items-center">
+                                    Notificações
+                                    <a href="#" class="text-white small mark-all-read" style="display: none;">Marcar todas como lidas</a>
                                 </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-primary">
-                                            <i class="fas fa-file-alt text-white"></i>
-                                        </div>
+                                <div class="notifications-container">
+                                    <div class="dropdown-item text-center small text-gray-500">
+                                        <i class="fas fa-spinner fa-spin mr-2"></i> Carregando...
                                     </div>
-                                    <div>
-                                        <div class="small text-gray-500">28 de Dezembro, 2025</div>
-                                        <span class="font-weight-bold">Um novo relatório mensal está disponível!</span>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-success">
-                                            <i class="fas fa-donate text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">27 de Dezembro, 2025</div>
-                                        R$ 290,29 foi depositado na sua conta!
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-warning">
-                                            <i class="fas fa-exclamation-triangle text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">26 de Dezembro, 2025</div>
-                                        Alerta de gastos: Notamos gastos incomuns na sua conta.
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Ver Todos os Alertas</a>
+                                </div>
+                                <a class="dropdown-item text-center small text-gray-500" href="<?= route_to('admin.notifications') ?>">Ver Todas as Notificações</a>
                             </div>
                         </li>
 
                         <!-- Nav Item - Messages -->
-                        <li class="nav-item dropdown no-arrow mx-1">
+                        <li class="nav-item dropdown no-arrow mx-1" id="messagesDropdownContainer">
                             <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-envelope fa-fw"></i>
                                 <!-- Counter - Messages -->
-                                <span class="badge badge-danger badge-counter">7</span>
+                                <span class="badge badge-danger badge-counter messages-count" style="display: none;">0</span>
                             </a>
                             <!-- Dropdown - Messages -->
                             <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                 aria-labelledby="messagesDropdown">
                                 <h6 class="dropdown-header">
-                                    Central de Mensagens
+                                    Mensagens
                                 </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="<?= base_url('back/img/undraw_profile_1.svg') ?>"
-                                            alt="...">
-                                        <div class="status-indicator bg-success"></div>
+                                <div class="messages-container">
+                                    <div class="dropdown-item text-center small text-gray-500">
+                                        Nenhuma mensagem nova
                                     </div>
-                                    <div class="font-weight-bold">
-                                        <div class="text-truncate">Olá! Gostaria de saber se você pode me ajudar com um
-                                            problema que estou tendo.</div>
-                                        <div class="small text-gray-500">Emily Fowler · 58m</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="<?= base_url('back/img/undraw_profile_2.svg') ?>"
-                                            alt="...">
-                                        <div class="status-indicator"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Tenho as fotos que você pediu no mês passado, como
-                                            gostaria que eu as enviasse?</div>
-                                        <div class="small text-gray-500">Jae Chun · 1d</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="<?= base_url('back/img/undraw_profile_3.svg') ?>"
-                                            alt="...">
-                                        <div class="status-indicator bg-warning"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">O relatório do mês passado ficou ótimo, estou muito
-                                            feliz com o progresso até agora!</div>
-                                        <div class="small text-gray-500">Morgan Alvarez · 2d</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Ler Mais Mensagens</a>
+                                </div>
+                                <a class="dropdown-item text-center small text-gray-500" href="<?= route_to('admin.messages') ?>">Ver Todas as Mensagens</a>
                             </div>
                         </li>
 
@@ -353,8 +295,11 @@
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?= esc(session('userName') ?? 'Usuário') ?></span>
-                                <img class="img-profile rounded-circle"
-                                    src="<?= base_url('back/img/undraw_profile.svg') ?>">
+                                <?php 
+                                $currentUser = session('user') ?? null;
+                                $avatarUrl = $currentUser ? $currentUser->avatarUrl(40) : base_url('back/img/undraw_profile.svg');
+                                ?>
+                                <img class="img-profile rounded-circle" src="<?= $avatarUrl ?>">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
@@ -364,11 +309,11 @@
                                     <?= esc(session('userRole') ?? 'user') ?>
                                 </span>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#">
+                                <a class="dropdown-item" href="<?= route_to('admin.profile') ?>">
                                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Perfil
                                 </a>
-                                <a class="dropdown-item" href="#">
+                                <a class="dropdown-item" href="<?= route_to('admin.profile.settings') ?>">
                                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Configurações
                                 </a>
@@ -498,6 +443,96 @@
             
             // Money mask - R$ 0.000,00
             $('.money-mask').mask('#.##0,00', {reverse: true});
+
+            // =========================================================================
+            // NOTIFICAÇÕES DROPDOWN
+            // =========================================================================
+            function loadNotifications() {
+                $.get('<?= route_to('admin.notifications.dropdown') ?>', function(response) {
+                    if (response.success) {
+                        updateNotificationCounter(response.unreadCount);
+                        renderNotifications(response.notifications);
+                    }
+                });
+            }
+
+            function updateNotificationCounter(count) {
+                var $counter = $('.notification-count');
+                var $markAllBtn = $('.mark-all-read');
+                
+                if (count > 0) {
+                    $counter.text(count > 9 ? '9+' : count).show();
+                    $markAllBtn.show();
+                } else {
+                    $counter.hide();
+                    $markAllBtn.hide();
+                }
+            }
+
+            function renderNotifications(notifications) {
+                var $container = $('.notifications-container');
+                $container.empty();
+
+                if (notifications.length === 0) {
+                    $container.html('<div class="dropdown-item text-center small text-gray-500">Nenhuma notificação</div>');
+                    return;
+                }
+
+                notifications.forEach(function(n) {
+                    var html = '<a class="dropdown-item d-flex align-items-center notification-item" href="#" data-id="' + n.id + '" data-link="' + (n.link || '') + '">' +
+                        '<div class="mr-3">' + n.iconHtml + '</div>' +
+                        '<div>' +
+                        '<div class="small text-gray-500">' + n.timeAgo + '</div>' +
+                        '<span class="font-weight-bold">' + n.title + '</span>' +
+                        (n.message ? '<div class="small text-gray-600">' + n.message + '</div>' : '') +
+                        '</div>' +
+                        '</a>';
+                    $container.append(html);
+                });
+            }
+
+            // Carregar notificações ao clicar no dropdown
+            $('#alertsDropdown').on('click', function() {
+                loadNotifications();
+            });
+
+            // Marcar como lida ao clicar
+            $(document).on('click', '.notification-item', function(e) {
+                e.preventDefault();
+                var $item = $(this);
+                var id = $item.data('id');
+                var link = $item.data('link');
+
+                $.post('<?= base_url('admin/notifications/') ?>' + id + '/read', function(response) {
+                    if (response.success) {
+                        updateNotificationCounter(response.unreadCount);
+                        $item.removeClass('font-weight-bold');
+                        
+                        if (link) {
+                            window.location.href = link;
+                        }
+                    }
+                });
+            });
+
+            // Marcar todas como lidas
+            $('.mark-all-read').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                $.post('<?= route_to('admin.notifications.read.all') ?>', function(response) {
+                    if (response.success) {
+                        updateNotificationCounter(0);
+                        loadNotifications();
+                    }
+                });
+            });
+
+            // Carregar contador inicial
+            loadNotifications();
+
+            // Atualizar a cada 60 segundos
+            setInterval(loadNotifications, 60000);
         });
     </script>
 

@@ -415,6 +415,54 @@ $routes->group('super', ['namespace' => 'App\Controllers\Super', 'filter' => 'au
 });
 
 // =========================================================================
+// GRUPO DE ROTAS: ADMIN (Área Logada Comum)
+// =========================================================================
+/**
+ * Rotas de funcionalidades para usuários autenticados
+ * 
+ * - Perfil e configurações do usuário
+ * - Sistema de notificações
+ * - Sistema de mensagens
+ */
+$routes->group('admin', ['filter' => 'auth'], static function ($routes) {
+    
+    // -----------------------------------------------------------------
+    // Perfil do Usuário
+    // -----------------------------------------------------------------
+    $routes->get('profile', 'ProfileController::index', ['as' => 'admin.profile']);
+    $routes->post('profile/update', 'ProfileController::update', ['as' => 'admin.profile.update']);
+    $routes->post('profile/avatar', 'ProfileController::uploadAvatar', ['as' => 'admin.profile.avatar']);
+    $routes->delete('profile/avatar', 'ProfileController::removeAvatar', ['as' => 'admin.profile.avatar.remove']);
+    $routes->get('profile/settings', 'ProfileController::settings', ['as' => 'admin.profile.settings']);
+    $routes->post('profile/settings', 'ProfileController::updateSettings', ['as' => 'admin.profile.settings.update']);
+    $routes->post('profile/password', 'ProfileController::changePassword', ['as' => 'admin.profile.password']);
+    
+    // -----------------------------------------------------------------
+    // Notificações
+    // -----------------------------------------------------------------
+    $routes->get('notifications', 'NotificationController::index', ['as' => 'admin.notifications']);
+    $routes->get('notifications/dropdown', 'NotificationController::dropdown', ['as' => 'admin.notifications.dropdown']);
+    $routes->post('notifications/(:num)/read', 'NotificationController::markRead/$1', ['as' => 'admin.notifications.read']);
+    $routes->post('notifications/read-all', 'NotificationController::markAllRead', ['as' => 'admin.notifications.read.all']);
+    $routes->delete('notifications/(:num)', 'NotificationController::delete/$1', ['as' => 'admin.notifications.delete']);
+    $routes->delete('notifications/clear-read', 'NotificationController::clearRead', ['as' => 'admin.notifications.clear']);
+    
+    // -----------------------------------------------------------------
+    // Mensagens
+    // -----------------------------------------------------------------
+    $routes->get('messages', 'MessageController::index', ['as' => 'admin.messages']);
+    $routes->get('messages/create', 'MessageController::create', ['as' => 'admin.messages.create']);
+    $routes->get('messages/(:num)', 'MessageController::show/$1', ['as' => 'admin.messages.show']);
+    $routes->post('messages/(:num)/send', 'MessageController::send/$1', ['as' => 'admin.messages.send']);
+    $routes->get('messages/(:num)/load-more', 'MessageController::loadMore/$1', ['as' => 'admin.messages.loadmore']);
+    $routes->post('messages/(:num)/read', 'MessageController::markRead/$1', ['as' => 'admin.messages.read']);
+    $routes->post('messages/(:num)/mute', 'MessageController::toggleMute/$1', ['as' => 'admin.messages.mute']);
+    $routes->post('messages/(:num)/leave', 'MessageController::leave/$1', ['as' => 'admin.messages.leave']);
+    $routes->get('messages/direct/(:num)', 'MessageController::startDirect/$1', ['as' => 'admin.messages.direct']);
+    $routes->post('messages/group', 'MessageController::createGroup', ['as' => 'admin.messages.group']);
+});
+
+// =========================================================================
 // ROTAS DE PAGAMENTO
 // =========================================================================
 /**
