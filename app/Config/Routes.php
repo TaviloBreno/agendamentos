@@ -437,6 +437,15 @@ $routes->group('super', ['namespace' => 'App\Controllers\Super', 'filter' => 'au
 $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     
     // -----------------------------------------------------------------
+    // Meus Agendamentos (para usuários comuns)
+    // -----------------------------------------------------------------
+    $routes->get('my-appointments', 'MyAppointmentsController::index', ['as' => 'admin.my.appointments']);
+    $routes->get('my-appointments/(:num)', 'MyAppointmentsController::show/$1', ['as' => 'admin.my.appointments.show']);
+    $routes->post('my-appointments/(:num)/cancel', 'MyAppointmentsController::cancel/$1', ['as' => 'admin.my.appointments.cancel']);
+    $routes->get('my-appointments/new', 'MyAppointmentsController::new', ['as' => 'admin.my.appointments.new']);
+    $routes->post('my-appointments', 'MyAppointmentsController::create', ['as' => 'admin.my.appointments.create']);
+    
+    // -----------------------------------------------------------------
     // Perfil do Usuário
     // -----------------------------------------------------------------
     $routes->get('profile', 'ProfileController::index', ['as' => 'admin.profile']);
