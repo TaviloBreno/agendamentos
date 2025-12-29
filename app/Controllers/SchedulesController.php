@@ -466,8 +466,8 @@ class SchedulesController extends BaseController
     protected function buildCalendar(int $year, int $month, ?int $professionalId = null): array
     {
         $firstDay = Time::create($year, $month, 1);
-        $lastDay = $firstDay->getLastOfMonth();
-        $daysInMonth = $lastDay->getDay();
+        // Obter número de dias no mês
+        $daysInMonth = (int) $firstDay->format('t');
         
         // Dia da semana do primeiro dia (0 = domingo)
         $firstDayOfWeek = (int) $firstDay->format('w');
