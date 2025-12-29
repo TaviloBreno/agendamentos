@@ -292,14 +292,89 @@ class UnitModel extends Model
      */
     protected $allowCallbacks = true;
 
-    protected $beforeInsert = [];
+    /**
+     * Callbacks executados ANTES de inserir
+     * 
+     * escapeData: Sanitiza strings para prevenir XSS
+     */
+    protected $beforeInsert = ['escapeData'];
     protected $afterInsert  = [];
-    protected $beforeUpdate = [];
+
+    /**
+     * Callbacks executados ANTES de atualizar
+     * 
+     * escapeData: Sanitiza strings para prevenir XSS
+     */
+    protected $beforeUpdate = ['escapeData'];
     protected $afterUpdate  = [];
+
     protected $beforeFind   = [];
     protected $afterFind    = [];
     protected $beforeDelete = [];
     protected $afterDelete  = [];
+
+    // =========================================================================
+    // CALLBACK METHODS - Métodos executados pelos callbacks
+    // =========================================================================
+
+    /**
+     * Sanitiza os dados antes de INSERT ou UPDATE
+     * 
+     * =========================================================================
+     * ESCAPE/SANITIZAÇÃO PARA PREVENÇÃO DE XSS
+     * =========================================================================
+     * 
+     * Este callback é executado automaticamente antes de qualquer INSERT ou UPDATE.
+     * Ele aplica a função esc() do CodeIgniter em todos os valores string,
+     * convertendo caracteres especiais HTML em entities seguras.
+     * 
+     * FUNCIONAMENTO DO CALLBACK:
+     * - Model passa array com chave 'data' contendo os dados a inserir/atualizar
+     * - Iteramos sobre cada campo em $data['data']
+     * - Strings são sanitizadas com esc() (default: 'html')
+     * - Arrays/objetos/números são mantidos intactos
+     * - Retornamos o array modificado para prosseguir a operação
+     * 
+     * O QUE esc() FAZ:
+     * - '<script>'       → '&lt;script&gt;'
+     * - '<img onerror>'  → '&lt;img onerror&gt;'
+     * - '&'              → '&amp;'
+     * - '"'              → '&quot;'
+     * - "'"              → '&#039;'
+     * 
+     * POR QUE USAR:
+     * - Previne ataques XSS (Cross-Site Scripting)
+     * - Dados são armazenados de forma segura no banco
+     * - Quando exibidos, os caracteres especiais são renderizados como texto
+     * 
+     * NOTA:
+     * - Campos JSON (como 'services') são tratados como arrays, não strings
+     * - O cast do Entity já serializa arrays para JSON automaticamente
+     * - Campos de data/hora e numéricos passam sem alteração
+     * 
+     * @param array $data Array contendo 'data' com os campos a inserir/atualizar
+     * @return array Array modificado com strings sanitizadas
+     * 
+     * @link https://codeigniter.com/user_guide/general/common_functions.html#esc
+     */
+    protected function escapeData(array $data): array
+    {
+        // Verifica se existe o array de dados
+        if (! isset($data['data']) || ! is_array($data['data'])) {
+            return $data;
+        }
+
+        // Itera sobre cada campo nos dados
+        foreach ($data['data'] as $field => $value) {
+            // Aplica escape apenas em strings não vazias
+            if (is_string($value) && $value !== '') {
+                $data['data'][$field] = esc($value, 'html');
+            }
+            // Arrays, objetos, números e booleanos passam sem alteração
+        }
+
+        return $data;
+    }
 
     // =========================================================================
     // MÉTODOS CUSTOMIZADOS - Queries específicas do negócio
