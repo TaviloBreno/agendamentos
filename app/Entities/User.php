@@ -34,6 +34,12 @@ class User extends MyBaseEntity
         'password',
         'role',
         'active',
+        'avatar',
+        'phone',
+        'bio',
+        'settings',
+        'last_login_at',
+        'last_activity_at',
     ];
 
     /**
@@ -44,6 +50,7 @@ class User extends MyBaseEntity
     protected $casts = [
         'id'         => 'integer',
         'active'     => 'int-bool',
+        'settings'   => 'json-array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
@@ -58,6 +65,21 @@ class User extends MyBaseEntity
         'created_at',
         'updated_at',
         'deleted_at',
+        'last_login_at',
+        'last_activity_at',
+    ];
+
+    /**
+     * Configurações padrão do usuário
+     */
+    public static array $defaultSettings = [
+        'email_notifications'     => true,
+        'push_notifications'      => true,
+        'appointment_reminders'   => true,
+        'message_notifications'   => true,
+        'language'                => 'pt-BR',
+        'theme'                   => 'light',
+        'sidebar_collapsed'       => false,
     ];
 
     // =========================================================================
@@ -217,6 +239,18 @@ class User extends MyBaseEntity
      */
     public function avatarUrl(int $size = 64): string
     {
+        // Se tem avatar customizado, usar ele
+        if (!empty($this->attributes['avatar'])) {
+            return base_url('uploads/avatars/' . $this->attributes['avatar']);
+        }
+
+        // Fallback para avatar padrão ou ui-avatars
+        $defaultAvatar = FCPATH . 'back/img/default-avatar.png';
+        if (file_exists($defaultAvatar)) {
+            return base_url('back/img/default-avatar.png');
+        }
+
+        // Último fallback: ui-avatars.com
         $name = urlencode($this->attributes['name'] ?? 'User');
         $colors = [
             'super' => '4e73df',
@@ -225,6 +259,118 @@ class User extends MyBaseEntity
         ];
         $bg = $colors[$this->attributes['role'] ?? 'user'] ?? '858796';
         return "https://ui-avatars.com/api/?name={$name}&size={$size}&background={$bg}&color=fff&bold=true";
+    }
+
+    /**
+     * Verifica se o usuário tem avatar customizado
+     * 
+     * @return bool
+     */
+    public function hasCustomAvatar(): bool
+    {
+        return !empty($this->attributes['avatar']);
+    }
+
+    /**
+     * Retorna uma configuração específica do usuário
+     * 
+     * @param string $key Chave da configuração
+     * @param mixed $default Valor padrão se não existir
+     * @return mixed
+     */
+    public function getSetting(string $key, $default = null)
+    {
+        $settings = $this->attributes['settings'] ?? [];
+
+        if (is_string($settings)) {
+            $settings = json_decode($settings, true) ?? [];
+        }
+
+        return $settings[$key] ?? self::$defaultSettings[$key] ?? $default;
+    }
+
+    /**
+     * Retorna todas as configurações do usuário com defaults
+     * 
+     * @return array
+     */
+    public function getAllSettings(): array
+    {
+        $settings = $this->attributes['settings'] ?? [];
+
+        if (is_string($settings)) {
+            $settings = json_decode($settings, true) ?? [];
+        }
+
+        return array_merge(self::$defaultSettings, $settings);
+    }
+
+    /**
+     * Define uma configuração específica
+     * 
+     * @param string $key Chave da configuração
+     * @param mixed $value Valor a definir
+     * @return $this
+     */
+    public function setSetting(string $key, $value): self
+    {
+        $settings = $this->getAllSettings();
+        $settings[$key] = $value;
+        $this->attributes['settings'] = $settings;
+
+        return $this;
+    }
+
+    /**
+     * Atualiza o último login
+     * 
+     * @return $this
+     */
+    public function updateLastLogin(): self
+    {
+        $this->attributes['last_login_at'] = date('Y-m-d H:i:s');
+        return $this;
+    }
+
+    /**
+     * Atualiza a última atividade
+     * 
+     * @return $this
+     */
+    public function updateLastActivity(): self
+    {
+        $this->attributes['last_activity_at'] = date('Y-m-d H:i:s');
+        return $this;
+    }
+
+    /**
+     * Retorna contagem de notificações não lidas
+     * 
+     * @return int
+     */
+    public function unreadNotificationsCount(): int
+    {
+        return model('NotificationModel')
+            ->where('user_id', $this->id)
+            ->whereNull('read_at')
+            ->countAllResults();
+    }
+
+    /**
+     * Retorna contagem de mensagens não lidas
+     * 
+     * @return int
+     */
+    public function unreadMessagesCount(): int
+    {
+        $total = 0;
+        $conversations = model('ConversationModel')->getByUser($this->id);
+
+        foreach ($conversations as $conversation) {
+            $total += $conversation->unreadCount($this->id);
+        }
+
+        return $total;
     }
 
     /**
