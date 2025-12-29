@@ -44,7 +44,16 @@ class ProfessionalsApiController extends BaseApiController
             $professionals = array_values($professionals);
         }
         
-        return $this->respondSuccess($professionals);
+        // Retorna no formato paginado para consistência
+        return $this->respondSuccess([
+            'items' => $professionals,
+            'pagination' => [
+                'current_page' => 1,
+                'per_page' => count($professionals),
+                'total_items' => count($professionals),
+                'total_pages' => 1,
+            ]
+        ]);
     }
 
     /**

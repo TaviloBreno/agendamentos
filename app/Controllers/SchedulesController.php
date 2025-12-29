@@ -100,9 +100,18 @@ class SchedulesController extends BaseController
             return $this->response->setJSON(['error' => 'Unidade não encontrada']);
         }
         
-        // Buscar serviços ativos da unidade
+        // Buscar IDs dos serviços associados à unidade
+        $serviceIds = is_string($unit->services) 
+            ? json_decode($unit->services, true) 
+            : $unit->services;
+        
+        if (empty($serviceIds) || !is_array($serviceIds)) {
+            return $this->response->setJSON([]);
+        }
+        
+        // Buscar serviços ativos pelos IDs
         $services = $this->serviceModel
-            ->where('unit_id', $unitId)
+            ->whereIn('id', $serviceIds)
             ->where('active', 1)
             ->orderBy('name', 'ASC')
             ->findAll();
