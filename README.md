@@ -197,34 +197,6 @@ php spark db:seed UserSeeder
 php spark serve
 ```
 
-### 🔑 Credenciais de Acesso
-
-| Usuário | Email | Senha | Papel |
-|---------|-------|-------|-------|
-| Administrador | admin@sistema.com | admin123 | Super Admin |
-| Gerente | gerente@sistema.com | gerente123 | Admin |
-| Usuário | usuario@sistema.com | usuario123 | User |
-
-> ⚠️ **Importante:** Altere as senhas padrão em ambiente de produção!
-
----
-
-## 📸 Screenshots
-
-### Tela de Login
-Interface moderna e responsiva com validação client-side e server-side.
-
-### Dashboard Administrativo
-Painel com navegação lateral, métricas e acesso rápido às funcionalidades.
-
-### Listagem de Unidades
-DataTables com paginação, busca, ordenação e dropdown de ações.
-
-### Formulário de Cadastro
-Validação em tempo real com feedback visual Bootstrap.
-
----
-
 ## 🛠️ Tecnologias
 
 ### Backend
