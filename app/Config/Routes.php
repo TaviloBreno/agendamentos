@@ -58,6 +58,9 @@ $routes->group('super', ['namespace' => 'App\Controllers\Super'], static functio
         // PUT /super/units/(:num) → Processa atualização
         $routes->put('(:num)', 'UnitsController::update/$1', ['as' => 'super.units.update']);
         
+        // PUT /super/units/(:num)/action → Toggle ativar/desativar
+        $routes->put('(:num)/action', 'UnitsController::action/$1', ['as' => 'super.units.action']);
+        
         // DELETE /super/units/(:num) → Remove unidade
         $routes->delete('(:num)', 'UnitsController::delete/$1', ['as' => 'super.units.delete']);
     });

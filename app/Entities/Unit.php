@@ -2,11 +2,25 @@
 
 namespace App\Entities;
 
-use CodeIgniter\Entity\Entity;
 use CodeIgniter\I18n\Time;
 
 /**
  * Unit Entity - Representa uma unidade/filial/loja
+ * 
+ * =========================================================================
+ * HERANÇA
+ * =========================================================================
+ * 
+ * Estende MyBaseEntity que fornece métodos comuns para gerenciamento
+ * de status (active), como:
+ * 
+ * - isActive(): bool
+ * - textToAction(): string ("Ativar" ou "Desativar")
+ * - iconToAction(): string (classe FontAwesome)
+ * - classToAction(): string (classe CSS)
+ * - setAction(): toggle do status
+ * - activate() / deactivate()
+ * - statusBadge(): HTML do badge Bootstrap
  * 
  * =========================================================================
  * CRIAÇÃO VIA CLI:
@@ -54,7 +68,7 @@ use CodeIgniter\I18n\Time;
  * @property Time|null   $created_at
  * @property Time|null   $updated_at
  */
-class Unit extends Entity
+class Unit extends MyBaseEntity
 {
     /**
      * Campos que devem ser tratados como datas
@@ -175,42 +189,43 @@ class Unit extends Entity
         return "{$this->startHour()} às {$this->endHour()}";
     }
 
-    /**
-     * Verifica se a unidade está ativa
-     * 
-     * Uso: if ($unit->isActive()) { ... }
-     * 
-     * @return bool
-     */
-    public function isActive(): bool
-    {
-        return (int) ($this->attributes['active'] ?? 0) === 1;
-    }
+    // =========================================================================
+    // MÉTODOS DE STATUS (HERDADOS DE MyBaseEntity)
+    // =========================================================================
+    // 
+    // Os seguintes métodos estão disponíveis via herança:
+    // - isActive(): bool
+    // - textToAction(): string
+    // - iconToAction(): string
+    // - classToAction(): string
+    // - setAction(): self (toggle)
+    // - activate(): self
+    // - deactivate(): self
+    // - statusLabel(): string
+    // - statusBadge(): string
+    //
+    // Para manter retrocompatibilidade, mantemos os aliases abaixo:
 
     /**
-     * Retorna o status como texto legível
+     * Alias para statusLabel() - mantido por retrocompatibilidade
      * 
      * @return string
+     * @deprecated Use statusLabel() da MyBaseEntity
      */
     public function getStatusLabel(): string
     {
-        return $this->isActive() ? 'Ativa' : 'Inativa';
+        return $this->statusLabel();
     }
 
     /**
-     * Retorna badge HTML para o status
-     * 
-     * Útil para exibição em views/tabelas
+     * Alias para statusBadge() - mantido por retrocompatibilidade
      * 
      * @return string
+     * @deprecated Use statusBadge() da MyBaseEntity
      */
     public function getStatusBadge(): string
     {
-        if ($this->isActive()) {
-            return '<span class="badge badge-success">Ativa</span>';
-        }
-        
-        return '<span class="badge badge-secondary">Inativa</span>';
+        return $this->statusBadge();
     }
 
     /**

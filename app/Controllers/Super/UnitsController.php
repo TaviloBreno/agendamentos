@@ -373,4 +373,97 @@ class UnitsController extends BaseController
         return redirect()->to(route_to('super.units'))
                        ->with('success', "Unidade '{$unit->name}' removida com sucesso!");
     }
+
+    /**
+     * Alterna o status de uma unidade (Ativar/Desativar)
+     * 
+     * PUT /super/units/(:num)/action
+     * 
+     * =========================================================================
+     * FLUXO DO TOGGLE DE STATUS
+     * =========================================================================
+     * 
+     * 1. Valida método HTTP (PUT via method spoofing)
+     * 2. Busca a entidade existente (findOrFail → 404 se não existir)
+     * 3. Alterna o status via setAction() (método herdado de MyBaseEntity)
+     * 4. Persiste com save() no Model
+     * 5. Retorna com mensagem de sucesso ou erro
+     * 
+     * =========================================================================
+     * SOBRE O setAction()
+     * =========================================================================
+     * 
+     * O método setAction() vem de MyBaseEntity e faz o toggle:
+     * - Se está ATIVO → torna INATIVO
+     * - Se está INATIVO → torna ATIVO
+     * 
+     * Também disponíveis: activate(), deactivate() para ações específicas.
+     * 
+     * =========================================================================
+     * SEGURANÇA
+     * =========================================================================
+     * 
+     * - CSRF validado automaticamente pelo filtro global
+     * - Method spoofing (_method=PUT) usado no form
+     * - findOrFail() previne manipulação de IDs inválidos
+     * 
+     * @param int $id ID da unidade
+     * @return \CodeIgniter\HTTP\RedirectResponse
+     */
+    public function action(int $id)
+    {
+        /**
+         * BUSCA A ENTIDADE
+         * ================
+         * 
+         * findOrFail() lança PageNotFoundException automaticamente
+         * se o registro não existir, evitando verificações manuais.
+         */
+        $unit = $this->unitModel->findOrFail($id);
+
+        /**
+         * GUARDA O ESTADO ANTERIOR
+         * ========================
+         * 
+         * Útil para a mensagem de feedback ao usuário.
+         */
+        $wasActive = $unit->isActive();
+
+        /**
+         * ALTERNA O STATUS
+         * ================
+         * 
+         * setAction() vem de MyBaseEntity:
+         * - Se active = true → define como false
+         * - Se active = false → define como true
+         */
+        $unit->setAction();
+
+        /**
+         * PERSISTE NO BANCO
+         * =================
+         * 
+         * save() aceita Entity e:
+         * - Valida usando $validationRules do Model
+         * - Executa UPDATE (pois Entity já tem ID)
+         */
+        $saved = $this->unitModel->save($unit);
+
+        if ($saved === false) {
+            return redirect()->back()
+                           ->with('danger', 'Erro ao alterar status da unidade.')
+                           ->with('errorsValidation', $this->unitModel->errors());
+        }
+
+        /**
+         * MENSAGEM DE SUCESSO
+         * ===================
+         * 
+         * Informa ao usuário a ação realizada de forma clara.
+         */
+        $actionText = $wasActive ? 'desativada' : 'ativada';
+        
+        return redirect()->to(route_to('super.units'))
+                       ->with('success', "Unidade '{$unit->name}' {$actionText} com sucesso!");
+    }
 }

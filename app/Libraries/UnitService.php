@@ -190,6 +190,7 @@ class UnitService extends MyBaseService
      * 
      * Centraliza a construção do HTML de ações na Service.
      * Usa o helper anchor() do CodeIgniter para gerar links.
+     * Usa ButtonsCell para ações que requerem formulário (Ativar/Desativar, Excluir).
      * 
      * ESTRUTURA DO DROPDOWN:
      * ┌─────────────────────────────────────┐
@@ -197,10 +198,17 @@ class UnitService extends MyBaseService
      * │  ├─ 👁️ Visualizar                   │
      * │  ├─ ✏️ Editar                       │
      * │  ├─ ───────────                     │
-     * │  ├─ ✅ Ativar/Desativar             │
+     * │  ├─ ✅ Ativar/Desativar (Cell)      │
      * │  ├─ ───────────                     │
-     * │  └─ 🗑️ Excluir                      │
+     * │  └─ 🗑️ Excluir (Cell)               │
      * └─────────────────────────────────────┘
+     * 
+     * =========================================================================
+     * SOBRE VIEW CELLS
+     * =========================================================================
+     * 
+     * ButtonsCell é usada para ações que precisam de formulário (POST/PUT/DELETE)
+     * com CSRF e method spoofing. Isso garante segurança sem JavaScript.
      * 
      * @param Unit $unit Entity da unidade
      * @return string HTML do dropdown completo
@@ -223,16 +231,43 @@ class UnitService extends MyBaseService
             ['class' => 'dropdown-item']
         );
         
-        // Status toggle (Ativar/Desativar) - placeholder
-        $statusText = $unit->active 
-            ? '<i class="fas fa-ban fa-sm fa-fw mr-2 text-secondary"></i> Desativar'
-            : '<i class="fas fa-check fa-sm fa-fw mr-2 text-success"></i> Ativar';
-        $statusLink = '<a class="dropdown-item" href="#" onclick="alert(\'Em desenvolvimento\'); return false;">' . $statusText . '</a>';
+        /**
+         * BOTÃO ATIVAR/DESATIVAR VIA VIEW CELL
+         * ====================================
+         * 
+         * ButtonsCell::action() gera um formulário inline com:
+         * - CSRF token automático
+         * - Method spoofing (_method=PUT)
+         * - Botão estilizado como dropdown-item
+         * 
+         * Parâmetros:
+         * - route: URL da ação (incluindo o ID)
+         * - activated: estado atual (bool)
+         * - textAction: texto do botão ("Ativar" ou "Desativar")
+         * - iconAction: ícone FontAwesome
+         * - classAction: classe CSS para cor
+         */
+        $statusAction = view_cell('App\Cells\ButtonsCell::action', [
+            'route'       => route_to('super.units.action', $unit->id),
+            'activated'   => $unit->isActive(),
+            'textAction'  => $unit->textToAction(),
+            'iconAction'  => $unit->iconToAction(),
+            'classAction' => $unit->classToAction(),
+        ]);
         
-        // Link de exclusão - placeholder com confirmação
-        $deleteLink = '<a class="dropdown-item text-danger" href="#" '
-            . 'onclick="if(confirm(\'Excluir ' . esc($unit->name, 'js') . '?\')) { alert(\'Em desenvolvimento\'); } return false;">'
-            . '<i class="fas fa-trash fa-sm fa-fw mr-2"></i> Excluir</a>';
+        /**
+         * BOTÃO EXCLUIR VIA VIEW CELL
+         * ===========================
+         * 
+         * ButtonsCell::delete() gera formulário com:
+         * - CSRF token automático
+         * - Method spoofing (_method=DELETE)
+         * - Confirmação JavaScript (onsubmit)
+         */
+        $deleteAction = view_cell('App\Cells\ButtonsCell::delete', [
+            'route' => route_to('super.units.delete', $unit->id),
+            'name'  => $unit->name,
+        ]);
         
         // Monta o dropdown completo
         return '
@@ -249,9 +284,9 @@ class UnitService extends MyBaseService
                     ' . $viewLink . '
                     ' . $editLink . '
                     <div class="dropdown-divider"></div>
-                    ' . $statusLink . '
+                    ' . $statusAction . '
                     <div class="dropdown-divider"></div>
-                    ' . $deleteLink . '
+                    ' . $deleteAction . '
                 </div>
             </div>
         ';
