@@ -115,6 +115,12 @@ $routes->get('login', 'AuthController::login', ['as' => 'login']);
 $routes->post('login', 'AuthController::attempt', ['as' => 'login.attempt']);
 $routes->get('logout', 'AuthController::logout', ['as' => 'logout']);
 
+// Recuperação de Senha
+$routes->get('password/forgot', 'AuthController::forgotPassword', ['as' => 'password.forgot']);
+$routes->post('password/forgot', 'AuthController::sendResetLink', ['as' => 'password.send']);
+$routes->get('password/reset', 'AuthController::resetPassword', ['as' => 'password.reset']);
+$routes->post('password/reset', 'AuthController::updatePassword', ['as' => 'password.update']);
+
 // =========================================================================
 // GRUPO DE ROTAS: SUPER (Painel Administrativo)
 // =========================================================================
