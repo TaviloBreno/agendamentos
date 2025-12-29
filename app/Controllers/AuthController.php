@@ -81,15 +81,20 @@ class AuthController extends BaseController
             // Buscar usuário pelo token
             $user = $this->userModel->where('remember_token', $rememberToken)->first();
             
-            if ($user && $user->status === 'active') {
+            if ($user && $user->isActive()) {
                 // Criar sessão automaticamente
                 $this->session->set([
+                    'user_id'    => $user->id,
                     'userId'     => $user->id,
                     'userName'   => $user->name,
                     'userEmail'  => $user->email,
                     'userRole'   => $user->role,
+                    'user'       => $user,
                     'isLoggedIn' => true,
                 ]);
+                
+                // Atualiza último login
+                $this->userModel->update($user->id, ['last_login_at' => date('Y-m-d H:i:s')]);
                 
                 $this->session->regenerate();
             } else {
@@ -214,12 +219,17 @@ class AuthController extends BaseController
 
         // Cria sessão do usuário
         $this->session->set([
-            'userId'     => $user->id,
+            'user_id'    => $user->id,
+            'userId'     => $user->id, // Mantém compatibilidade
             'userName'   => $user->name,
             'userEmail'  => $user->email,
             'userRole'   => $user->role,
+            'user'       => $user, // Objeto User completo para acesso aos métodos
             'isLoggedIn' => true,
         ]);
+
+        // Atualiza último login
+        $this->userModel->update($user->id, ['last_login_at' => date('Y-m-d H:i:s')]);
 
         // Regenera o ID da sessão por segurança
         $this->session->regenerate();

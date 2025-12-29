@@ -245,9 +245,9 @@ class User extends MyBaseEntity
         }
 
         // Fallback para avatar padrão ou ui-avatars
-        $defaultAvatar = FCPATH . 'back/img/default-avatar.png';
+        $defaultAvatar = FCPATH . 'back/img/default-avatar.svg';
         if (file_exists($defaultAvatar)) {
-            return base_url('back/img/default-avatar.png');
+            return base_url('back/img/default-avatar.svg');
         }
 
         // Último fallback: ui-avatars.com

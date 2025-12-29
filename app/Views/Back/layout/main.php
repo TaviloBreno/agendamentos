@@ -144,6 +144,22 @@
                 Comunicação
             </div>
 
+            <!-- Nav Item - Mensagens -->
+            <li class="nav-item <?= url_is('admin/messages*') ? 'active' : '' ?>">
+                <a class="nav-link" href="<?= route_to('admin.messages') ?>">
+                    <i class="fas fa-fw fa-envelope"></i>
+                    <span>Mensagens</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Notificações -->
+            <li class="nav-item <?= url_is('admin/notifications*') ? 'active' : '' ?>">
+                <a class="nav-link" href="<?= route_to('admin.notifications') ?>">
+                    <i class="fas fa-fw fa-bell"></i>
+                    <span>Notificações</span>
+                </a>
+            </li>
+
             <!-- Nav Item - WhatsApp -->
             <li class="nav-item <?= url_is('super/whatsapp*') ? 'active' : '' ?>">
                 <a class="nav-link" href="<?= route_to('super.whatsapp') ?>">
