@@ -104,12 +104,11 @@
                 </a>
             </li>
 
-            <!-- Nav Item - Profissionais (Em breve) -->
-            <li class="nav-item">
-                <a class="nav-link disabled" href="#" style="opacity: 0.5;">
+            <!-- Nav Item - Profissionais -->
+            <li class="nav-item <?= url_is('super/professionals*') ? 'active' : '' ?>">
+                <a class="nav-link" href="<?= route_to('super.professionals') ?>">
                     <i class="fas fa-fw fa-user-tie"></i>
                     <span>Profissionais</span>
-                    <span class="badge badge-secondary ml-2">Em breve</span>
                 </a>
             </li>
 
@@ -121,12 +120,11 @@
                 Agendamentos
             </div>
 
-            <!-- Nav Item - Agenda (Em breve) -->
-            <li class="nav-item">
-                <a class="nav-link disabled" href="#" style="opacity: 0.5;">
+            <!-- Nav Item - Agenda -->
+            <li class="nav-item <?= url_is('super/appointments*') ? 'active' : '' ?>">
+                <a class="nav-link" href="<?= route_to('super.appointments') ?>">
                     <i class="fas fa-fw fa-calendar-alt"></i>
                     <span>Agenda</span>
-                    <span class="badge badge-secondary ml-2">Em breve</span>
                 </a>
             </li>
 
