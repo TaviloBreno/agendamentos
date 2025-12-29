@@ -267,17 +267,35 @@ class ProfileController extends BaseController
         }
         
         $userId = $user->id;
+        
+        // Obtém configurações atuais do usuário
+        $currentSettings = $user->getAllSettings();
 
-        // Coleta as configurações do formulário
-        $settings = [
-            'email_notifications'   => (bool) $this->request->getPost('email_notifications'),
-            'push_notifications'    => (bool) $this->request->getPost('push_notifications'),
-            'appointment_reminders' => (bool) $this->request->getPost('appointment_reminders'),
-            'message_notifications' => (bool) $this->request->getPost('message_notifications'),
-            'language'              => $this->request->getPost('language') ?: 'pt-BR',
-            'theme'                 => $this->request->getPost('theme') ?: 'light',
-            'sidebar_collapsed'     => (bool) $this->request->getPost('sidebar_collapsed'),
-        ];
+        // Verifica se é uma atualização parcial (AJAX com _ajax flag)
+        if ($this->request->isAJAX() && $this->request->getPost('_ajax')) {
+            // Atualização parcial - apenas os campos enviados
+            $fieldsToUpdate = ['theme', 'sidebar_collapsed', 'language'];
+            
+            foreach ($fieldsToUpdate as $field) {
+                $value = $this->request->getPost($field);
+                if ($value !== null) {
+                    $currentSettings[$field] = $field === 'sidebar_collapsed' ? (bool) $value : $value;
+                }
+            }
+            
+            $settings = $currentSettings;
+        } else {
+            // Atualização completa - formulário de configurações
+            $settings = [
+                'email_notifications'   => (bool) $this->request->getPost('email_notifications'),
+                'push_notifications'    => (bool) $this->request->getPost('push_notifications'),
+                'appointment_reminders' => (bool) $this->request->getPost('appointment_reminders'),
+                'message_notifications' => (bool) $this->request->getPost('message_notifications'),
+                'language'              => $this->request->getPost('language') ?: 'pt-BR',
+                'theme'                 => $this->request->getPost('theme') ?: ($currentSettings['theme'] ?? 'auto'),
+                'sidebar_collapsed'     => (bool) $this->request->getPost('sidebar_collapsed'),
+            ];
+        }
 
         // Atualiza
         $this->userModel->update($userId, ['settings' => json_encode($settings)]);

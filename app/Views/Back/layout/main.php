@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="auto">
 
 <head>
 
@@ -8,9 +8,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="<?= isset($description) ? esc($description) : 'Sistema de Agendamentos' ?>">
     <meta name="author" content="<?= isset($author) ? esc($author) : '' ?>">
+    <meta name="color-scheme" content="light dark">
 
     <!-- Título dinâmico com fallback seguro -->
     <title><?= isset($title) ? esc($title) : 'Admin | Sistema' ?></title>
+
+    <!-- Prevenir flash de tema incorreto -->
+    <script>
+        (function() {
+            var theme = localStorage.getItem('theme') || 'auto';
+            var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (theme === 'dark' || (theme === 'auto' && prefersDark)) {
+                document.documentElement.classList.add('dark-theme');
+            }
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
 
     <!-- Custom fonts for this template-->
     <link href="<?= base_url('back/vendor/fontawesome-free/css/all.min.css') ?>" rel="stylesheet" type="text/css">
@@ -18,6 +32,9 @@
 
     <!-- Custom styles for this template-->
     <link href="<?= base_url('back/css/sb-admin-2.min.css') ?>" rel="stylesheet">
+    
+    <!-- Dark Theme -->
+    <link href="<?= base_url('back/css/dark-theme.css') ?>" rel="stylesheet">
 
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
@@ -304,6 +321,35 @@
                             </div>
                         </li>
 
+                        <!-- Nav Item - Theme Toggle -->
+                        <li class="nav-item dropdown no-arrow mx-1">
+                            <a class="nav-link dropdown-toggle" href="#" id="themeDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Alterar Tema">
+                                <i class="fas fa-sun fa-fw theme-icon-light"></i>
+                                <i class="fas fa-moon fa-fw theme-icon-dark" style="display: none;"></i>
+                            </a>
+                            <!-- Dropdown - Theme -->
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in dropdown-theme" aria-labelledby="themeDropdown">
+                                <h6 class="dropdown-header">Tema</h6>
+                                <a class="dropdown-item theme-option d-flex align-items-center" href="#" data-theme="light">
+                                    <i class="fas fa-sun fa-sm fa-fw mr-2 text-warning"></i>
+                                    <span>Claro</span>
+                                    <i class="fas fa-check ml-auto text-success theme-check"></i>
+                                </a>
+                                <a class="dropdown-item theme-option d-flex align-items-center" href="#" data-theme="dark">
+                                    <i class="fas fa-moon fa-sm fa-fw mr-2 text-primary"></i>
+                                    <span>Escuro</span>
+                                    <i class="fas fa-check ml-auto text-success theme-check"></i>
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item theme-option d-flex align-items-center" href="#" data-theme="auto">
+                                    <i class="fas fa-adjust fa-sm fa-fw mr-2 text-secondary"></i>
+                                    <span>Automático</span>
+                                    <i class="fas fa-check ml-auto text-success theme-check"></i>
+                                </a>
+                            </div>
+                        </li>
+
                         <div class="topbar-divider d-none d-sm-block"></div>
 
                         <!-- Nav Item - User Information -->
@@ -549,6 +595,90 @@
 
             // Atualizar a cada 60 segundos
             setInterval(loadNotifications, 60000);
+
+            // =========================================================
+            // TEMA ESCURO / CLARO / AUTOMÁTICO
+            // =========================================================
+            
+            // Função para verificar se está no modo escuro
+            function isDarkMode() {
+                return document.documentElement.classList.contains('dark-theme');
+            }
+            
+            // Função para atualizar ícone do botão de tema
+            function updateThemeIcon() {
+                var dark = isDarkMode();
+                $('.theme-icon-light').toggle(!dark);
+                $('.theme-icon-dark').toggle(dark);
+            }
+            
+            // Função para aplicar o tema
+            function applyTheme(theme) {
+                var html = document.documentElement;
+                
+                // Adiciona classe de transição suave
+                html.classList.add('theme-transition');
+                
+                if (theme === 'auto') {
+                    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    if (prefersDark) {
+                        html.classList.add('dark-theme');
+                    } else {
+                        html.classList.remove('dark-theme');
+                    }
+                } else if (theme === 'dark') {
+                    html.classList.add('dark-theme');
+                } else {
+                    html.classList.remove('dark-theme');
+                }
+                
+                html.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+                
+                // Remove classe de transição após animação
+                setTimeout(function() {
+                    html.classList.remove('theme-transition');
+                }, 300);
+                
+                // Atualiza ícones
+                updateThemeDropdown(theme);
+                updateThemeIcon();
+            }
+            
+            // Função para atualizar o dropdown do tema
+            function updateThemeDropdown(theme) {
+                $('.theme-option .theme-check').hide();
+                $('.theme-option[data-theme="' + theme + '"] .theme-check').show();
+            }
+            
+            // Handler para mudança de tema
+            $('.theme-option').on('click', function(e) {
+                e.preventDefault();
+                var theme = $(this).data('theme');
+                applyTheme(theme);
+                
+                // Salva no servidor se o usuário estiver logado
+                <?php if (session()->get('user_id')): ?>
+                $.post('<?= base_url('admin/profile/settings') ?>', {
+                    theme: theme,
+                    _ajax: true,
+                    <?= csrf_token() ?>: '<?= csrf_hash() ?>'
+                });
+                <?php endif; ?>
+            });
+            
+            // Escuta mudanças na preferência do sistema
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+                var currentTheme = localStorage.getItem('theme') || 'auto';
+                if (currentTheme === 'auto') {
+                    applyTheme('auto');
+                }
+            });
+            
+            // Inicializa o dropdown e ícone
+            var savedTheme = localStorage.getItem('theme') || 'auto';
+            updateThemeDropdown(savedTheme);
+            updateThemeIcon();
         });
     </script>
 
