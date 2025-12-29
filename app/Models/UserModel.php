@@ -78,6 +78,12 @@ class UserModel extends Model
         'whatsapp_token',
         'whatsapp_phone',
         'whatsapp_status',
+        'avatar',
+        'phone',
+        'bio',
+        'settings',
+        'last_login_at',
+        'last_activity_at',
     ];
 
     // =========================================================================
