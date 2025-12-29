@@ -44,6 +44,64 @@ $routes->group('api', static function ($routes) {
 });
 
 // =========================================================================
+// API REST v1 (Para integrações externas)
+// =========================================================================
+/**
+ * API RESTful para integrações com sistemas externos
+ * 
+ * Recursos disponíveis:
+ * - /api/v1/units         → Unidades
+ * - /api/v1/services      → Serviços
+ * - /api/v1/professionals → Profissionais
+ * - /api/v1/appointments  → Agendamentos
+ * - /api/v1/clients       → Clientes
+ */
+$routes->group('api/v1', ['namespace' => 'App\Controllers\Api'], static function ($routes) {
+    
+    // Unidades
+    $routes->get('units', 'UnitsApiController::index');
+    $routes->get('units/(:num)', 'UnitsApiController::show/$1');
+    $routes->post('units', 'UnitsApiController::create');
+    $routes->put('units/(:num)', 'UnitsApiController::update/$1');
+    $routes->delete('units/(:num)', 'UnitsApiController::delete/$1');
+    
+    // Serviços
+    $routes->get('services', 'ServicesApiController::index');
+    $routes->get('services/(:num)', 'ServicesApiController::show/$1');
+    $routes->post('services', 'ServicesApiController::create');
+    $routes->put('services/(:num)', 'ServicesApiController::update/$1');
+    $routes->delete('services/(:num)', 'ServicesApiController::delete/$1');
+    
+    // Profissionais
+    $routes->get('professionals', 'ProfessionalsApiController::index');
+    $routes->get('professionals/(:num)', 'ProfessionalsApiController::show/$1');
+    $routes->get('professionals/(:num)/availability', 'ProfessionalsApiController::availability/$1');
+    $routes->post('professionals', 'ProfessionalsApiController::create');
+    $routes->put('professionals/(:num)', 'ProfessionalsApiController::update/$1');
+    $routes->delete('professionals/(:num)', 'ProfessionalsApiController::delete/$1');
+    
+    // Agendamentos
+    $routes->get('appointments', 'AppointmentsApiController::index');
+    $routes->get('appointments/available-slots', 'AppointmentsApiController::availableSlots');
+    $routes->get('appointments/(:num)', 'AppointmentsApiController::show/$1');
+    $routes->post('appointments', 'AppointmentsApiController::create');
+    $routes->post('appointments/(:num)/confirm', 'AppointmentsApiController::confirm/$1');
+    $routes->post('appointments/(:num)/complete', 'AppointmentsApiController::complete/$1');
+    $routes->post('appointments/(:num)/cancel', 'AppointmentsApiController::cancel/$1');
+    $routes->put('appointments/(:num)', 'AppointmentsApiController::update/$1');
+    $routes->delete('appointments/(:num)', 'AppointmentsApiController::delete/$1');
+    
+    // Clientes
+    $routes->get('clients', 'ClientsApiController::index');
+    $routes->get('clients/search', 'ClientsApiController::search');
+    $routes->get('clients/(:num)', 'ClientsApiController::show/$1');
+    $routes->get('clients/(:num)/appointments', 'ClientsApiController::appointments/$1');
+    $routes->post('clients', 'ClientsApiController::create');
+    $routes->put('clients/(:num)', 'ClientsApiController::update/$1');
+    $routes->delete('clients/(:num)', 'ClientsApiController::delete/$1');
+});
+
+// =========================================================================
 // ROTAS DE AUTENTICAÇÃO
 // =========================================================================
 /**
