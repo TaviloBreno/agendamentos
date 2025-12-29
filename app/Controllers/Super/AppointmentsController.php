@@ -44,20 +44,46 @@ class AppointmentsController extends BaseController
     }
 
     /**
-     * Lista agendamentos com calendário
+     * Lista agendamentos com calendário e filtro por unidade
      * 
      * GET /super/appointments
+     * GET /super/appointments?unit_id=X
      */
     public function index(): string
     {
-        $appointments = $this->appointmentModel->getWithRelations(100);
-        $stats = $this->appointmentService->getStats();
+        $unitModel = model(UnitModel::class);
+        
+        // Filtro por unidade
+        $unitId = $this->request->getGet('unit_id');
+        $dateFilter = $this->request->getGet('date');
+        $statusFilter = $this->request->getGet('status');
+        
+        $builder = $this->appointmentModel;
+        
+        if ($unitId) {
+            $builder = $builder->where('unit_id', $unitId);
+        }
+        
+        if ($dateFilter) {
+            $builder = $builder->where('date', $dateFilter);
+        }
+        
+        if ($statusFilter) {
+            $builder = $builder->where('status', $statusFilter);
+        }
+        
+        $appointments = $builder->getWithRelations(100);
+        $stats = $this->appointmentService->getStats($unitId);
 
         $data = [
-            'title'        => 'Agenda',
-            'pageHeading'  => 'Gerenciar Agendamentos',
-            'tableHtml'    => $this->appointmentService->renderAppointments($appointments),
-            'stats'        => $stats,
+            'title'         => 'Agenda',
+            'pageHeading'   => 'Gerenciar Agendamentos',
+            'tableHtml'     => $this->appointmentService->renderAppointments($appointments),
+            'stats'         => $stats,
+            'units'         => $unitModel->getForDropdown(),
+            'selectedUnit'  => $unitId,
+            'selectedDate'  => $dateFilter,
+            'selectedStatus'=> $statusFilter,
         ];
 
         return view('Back/Appointments/index', $data);

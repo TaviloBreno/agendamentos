@@ -431,7 +431,10 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/i18n/pt-BR.js"></script>
     
-    <!-- Initialize Select2 for services -->
+    <!-- jQuery Mask Plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    
+    <!-- Initialize Select2 and Masks -->
     <script>
         $(document).ready(function() {
             // Initialize Select2 for service multi-select
@@ -442,6 +445,35 @@
                 allowClear: true,
                 width: '100%'
             });
+            
+            // Phone mask - (00) 00000-0000
+            var phoneMaskBehavior = function(val) {
+                return val.replace(/\D/g, '').length === 11 ? '(00) 00000-0000' : '(00) 0000-00009';
+            };
+            var phoneOptions = {
+                onKeyPress: function(val, e, field, options) {
+                    field.mask(phoneMaskBehavior.apply({}, arguments), options);
+                }
+            };
+            $('input[name="phone"], .phone-mask').mask(phoneMaskBehavior, phoneOptions);
+            
+            // CPF mask - 000.000.000-00
+            $('input[name="cpf"], .cpf-mask').mask('000.000.000-00', {reverse: true});
+            
+            // CNPJ mask - 00.000.000/0000-00
+            $('input[name="cnpj"], .cnpj-mask').mask('00.000.000/0000-00', {reverse: true});
+            
+            // CEP mask - 00000-000
+            $('input[name="zip_code"], .cep-mask').mask('00000-000');
+            
+            // Date mask - 00/00/0000
+            $('.date-mask').mask('00/00/0000');
+            
+            // Time mask - 00:00
+            $('.time-mask').mask('00:00');
+            
+            // Money mask - R$ 0.000,00
+            $('.money-mask').mask('#.##0,00', {reverse: true});
         });
     </script>
 
