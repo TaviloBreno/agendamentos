@@ -65,6 +65,57 @@
     </div>
 <?php endif; ?>
 
+<!-- Filtros -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-filter mr-2"></i>Filtros
+        </h6>
+    </div>
+    <div class="card-body">
+        <form method="GET" action="<?= route_to('super.appointments') ?>" class="row align-items-end">
+            <div class="col-md-3">
+                <div class="form-group mb-0">
+                    <label for="unit_id"><i class="fas fa-building mr-1"></i>Unidade</label>
+                    <select class="form-control" id="unit_id" name="unit_id">
+                        <option value="">Todas as Unidades</option>
+                        <?php foreach ($units ?? [] as $id => $name): ?>
+                            <option value="<?= $id ?>" <?= ($selectedUnit ?? '') == $id ? 'selected' : '' ?>><?= esc($name) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group mb-0">
+                    <label for="date"><i class="fas fa-calendar mr-1"></i>Data</label>
+                    <input type="date" class="form-control" id="date" name="date" value="<?= $selectedDate ?? '' ?>">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group mb-0">
+                    <label for="status"><i class="fas fa-flag mr-1"></i>Status</label>
+                    <select class="form-control" id="status" name="status">
+                        <option value="">Todos</option>
+                        <option value="scheduled" <?= ($selectedStatus ?? '') === 'scheduled' ? 'selected' : '' ?>>Agendado</option>
+                        <option value="confirmed" <?= ($selectedStatus ?? '') === 'confirmed' ? 'selected' : '' ?>>Confirmado</option>
+                        <option value="completed" <?= ($selectedStatus ?? '') === 'completed' ? 'selected' : '' ?>>Concluído</option>
+                        <option value="cancelled" <?= ($selectedStatus ?? '') === 'cancelled' ? 'selected' : '' ?>>Cancelado</option>
+                        <option value="no_show" <?= ($selectedStatus ?? '') === 'no_show' ? 'selected' : '' ?>>Não Compareceu</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary mr-2">
+                    <i class="fas fa-search mr-1"></i>Filtrar
+                </button>
+                <a href="<?= route_to('super.appointments') ?>" class="btn btn-secondary">
+                    <i class="fas fa-times mr-1"></i>Limpar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Stats Cards -->
 <div class="row mb-4">
     <div class="col-xl-3 col-md-6 mb-4">
