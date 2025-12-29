@@ -76,9 +76,38 @@ $routes->group('super', ['namespace' => 'App\Controllers\Super', 'filter' => 'au
     });
     
     // -----------------------------------------------------------------
+    // Rotas de Serviços (Services)
+    // -----------------------------------------------------------------
+    $routes->group('services', static function ($routes) {
+        
+        // GET /super/services → Lista todos os serviços
+        $routes->get('/', 'ServicesController::index', ['as' => 'super.services']);
+        
+        // GET /super/services/new → Formulário de novo serviço
+        $routes->get('new', 'ServicesController::new', ['as' => 'super.services.new']);
+        
+        // POST /super/services → Processa criação
+        $routes->post('/', 'ServicesController::create', ['as' => 'super.services.create']);
+        
+        // GET /super/services/(:num) → Exibe detalhes de um serviço
+        $routes->get('(:num)', 'ServicesController::show/$1', ['as' => 'super.services.show']);
+        
+        // GET /super/services/(:num)/edit → Formulário de edição
+        $routes->get('(:num)/edit', 'ServicesController::edit/$1', ['as' => 'super.services.edit']);
+        
+        // PUT /super/services/(:num) → Processa atualização
+        $routes->put('(:num)', 'ServicesController::update/$1', ['as' => 'super.services.update']);
+        
+        // PUT /super/services/(:num)/action → Toggle ativar/desativar
+        $routes->put('(:num)/action', 'ServicesController::action/$1', ['as' => 'super.services.action']);
+        
+        // DELETE /super/services/(:num) → Remove serviço
+        $routes->delete('(:num)', 'ServicesController::delete/$1', ['as' => 'super.services.delete']);
+    });
+    
+    // -----------------------------------------------------------------
     // Futuras rotas do painel administrativo
     // -----------------------------------------------------------------
-    // $routes->group('services', static function ($routes) { ... });
     // $routes->group('users', static function ($routes) { ... });
     // $routes->group('appointments', static function ($routes) { ... });
 });

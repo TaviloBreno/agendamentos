@@ -5,6 +5,7 @@ namespace App\Controllers\Super;
 use App\Controllers\BaseController;
 use App\Libraries\UnitService;
 use App\Models\UnitModel;
+use App\Models\ServiceModel;
 
 /**
  * UnitsController - Controller para gerenciar Unidades
@@ -100,9 +101,14 @@ class UnitsController extends BaseController
      */
     public function new(): string
     {
+        // Busca serviços ativos para o multi-select
+        $serviceModel = model(ServiceModel::class);
+
         $data = [
-            'title'       => 'Nova Unidade',
-            'pageHeading' => 'Cadastrar Nova Unidade',
+            'title'             => 'Nova Unidade',
+            'pageHeading'       => 'Cadastrar Nova Unidade',
+            'timesInterval'     => $this->unitService->renderTimesInterval(),
+            'availableServices' => $serviceModel->getForDropdownDetailed(),
         ];
 
         return view('Back/Units/form', $data);
@@ -197,13 +203,18 @@ class UnitsController extends BaseController
         // findOrFail() lança PageNotFoundException se não encontrar
         $unit = $this->unitModel->findOrFail($id);
 
+        // Busca serviços ativos para o multi-select
+        $serviceModel = model(ServiceModel::class);
+
         $data = [
-            'title'         => 'Editar Unidade',
-            'pageHeading'   => "Editar: {$unit->name}",
-            'unit'          => $unit,
+            'title'             => 'Editar Unidade',
+            'pageHeading'       => "Editar: {$unit->name}",
+            'unit'              => $unit,
             // Dropdown de tempo de atendimento renderizado pela Service
             // Passa o valor atual para pré-selecionar a opção correta
-            'timesInterval' => $this->unitService->renderTimesInterval($unit->service_time),
+            'timesInterval'     => $this->unitService->renderTimesInterval($unit->service_time),
+            // Serviços disponíveis para seleção
+            'availableServices' => $serviceModel->getForDropdownDetailed(),
         ];
 
         return view('Back/Units/edit', $data);

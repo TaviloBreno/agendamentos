@@ -303,6 +303,63 @@
 
             <hr>
             <h6 class="text-primary mb-3">
+                <i class="fas fa-concierge-bell mr-2"></i>Serviços Oferecidos
+            </h6>
+
+            <!-- ============================================================
+                 LINHA 5: Serviços (Multi-select com Select2)
+                 ============================================================ -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="services">
+                            Serviços Disponíveis nesta Unidade
+                        </label>
+                        <?php
+                        /**
+                         * MULTI-SELECT DE SERVIÇOS
+                         * ========================
+                         * 
+                         * Permite selecionar múltiplos serviços para a unidade.
+                         * Os serviços selecionados são armazenados como JSON no banco.
+                         * 
+                         * Prioridade de valores:
+                         * 1. old('services') - Valores do POST (após erro de validação)
+                         * 2. $unit->services - Valores do banco (decodificados)
+                         * 3. [] - Array vazio como padrão
+                         * 
+                         * O name="services[]" garante que o PHP receba um array.
+                         */
+                        $selectedServices = old('services');
+                        if ($selectedServices === null && isset($unit->services)) {
+                            // Decodifica o JSON do banco
+                            $decoded = is_string($unit->services) ? json_decode($unit->services, true) : $unit->services;
+                            $selectedServices = is_array($decoded) ? $decoded : [];
+                        }
+                        $selectedServices = $selectedServices ?? [];
+                        ?>
+                        <select class="form-control select2-services <?= hasErrorInput('services') ? 'is-invalid' : '' ?>" 
+                                id="services" 
+                                name="services[]" 
+                                multiple="multiple"
+                                data-placeholder="Selecione os serviços oferecidos nesta unidade">
+                            <?php foreach ($availableServices as $id => $label): ?>
+                                <option value="<?= $id ?>" <?= in_array($id, $selectedServices) ? 'selected' : '' ?>>
+                                    <?= esc($label) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <?= showErrorInput('services') ?>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Selecione os serviços que esta unidade pode oferecer aos clientes
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+            <h6 class="text-primary mb-3">
                 <i class="fas fa-toggle-on mr-2"></i>Status
             </h6>
 

@@ -177,18 +177,44 @@ $formAction = $isEdit
                 <!-- Tempo de Atendimento -->
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label for="service_time">Tempo de Atendimento (min)</label>
-                        <input type="number" 
-                               class="form-control" 
-                               id="service_time" 
-                               name="service_time" 
-                               value="<?= old('service_time', $unit->service_time ?? '30') ?>"
-                               min="5"
-                               max="240"
-                               placeholder="30">
+                        <label for="service_time">Tempo de Atendimento <span class="text-danger">*</span></label>
+                        <?= $timesInterval ?? '<input type="number" class="form-control" id="service_time" name="service_time" value="' . old('service_time', $unit->service_time ?? '30') . '" min="5" max="240" placeholder="30">' ?>
                         <small class="form-text text-muted">Duração padrão de cada atendimento</small>
                     </div>
                 </div>
+            </div>
+
+            <hr>
+            <h6 class="text-primary mb-3"><i class="fas fa-concierge-bell mr-2"></i>Serviços Oferecidos</h6>
+
+            <!-- Multi-select de Serviços -->
+            <div class="form-group">
+                <label for="services">Serviços Disponíveis nesta Unidade</label>
+                <?php
+                $selectedServices = old('services');
+                if ($selectedServices === null && isset($unit->services)) {
+                    $decoded = is_string($unit->services) ? json_decode($unit->services, true) : $unit->services;
+                    $selectedServices = is_array($decoded) ? $decoded : [];
+                }
+                $selectedServices = $selectedServices ?? [];
+                ?>
+                <select class="form-control select2-services" 
+                        id="services" 
+                        name="services[]" 
+                        multiple="multiple"
+                        data-placeholder="Selecione os serviços oferecidos nesta unidade">
+                    <?php if (isset($availableServices)): ?>
+                        <?php foreach ($availableServices as $id => $label): ?>
+                            <option value="<?= $id ?>" <?= in_array($id, $selectedServices) ? 'selected' : '' ?>>
+                                <?= esc($label) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </select>
+                <small class="form-text text-muted">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Selecione os serviços que esta unidade pode oferecer aos clientes
+                </small>
             </div>
 
             <hr>
