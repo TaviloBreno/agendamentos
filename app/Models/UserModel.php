@@ -69,6 +69,9 @@ class UserModel extends Model
         'password',
         'role',
         'active',
+        'remember_token',
+        'reset_token',
+        'reset_expires_at',
     ];
 
     // =========================================================================
