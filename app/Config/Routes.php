@@ -444,6 +444,7 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     $routes->post('my-appointments/(:num)/cancel', 'MyAppointmentsController::cancel/$1', ['as' => 'admin.my.appointments.cancel']);
     $routes->get('my-appointments/new', 'MyAppointmentsController::new', ['as' => 'admin.my.appointments.new']);
     $routes->post('my-appointments', 'MyAppointmentsController::create', ['as' => 'admin.my.appointments.create']);
+    $routes->get('my-appointments/slots', 'MyAppointmentsController::slots', ['as' => 'admin.my.appointments.slots']);
     
     // -----------------------------------------------------------------
     // Perfil do Usuário

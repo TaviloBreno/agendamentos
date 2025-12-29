@@ -223,4 +223,28 @@ class MyAppointmentsController extends BaseController
         return redirect()->to(route_to('admin.my.appointments'))
             ->with('success', 'Agendamento criado com sucesso!');
     }
+
+    /**
+     * Retorna horários disponíveis (JSON)
+     * 
+     * GET /admin/my-appointments/slots
+     */
+    public function slots()
+    {
+        $professionalId = $this->request->getGet('professional_id');
+        $date = $this->request->getGet('date');
+        $duration = $this->request->getGet('duration') ?? 30;
+
+        if (!$professionalId || !$date) {
+            return $this->response->setJSON(['error' => 'Parâmetros inválidos']);
+        }
+
+        $slots = $this->appointmentModel->getAvailableSlots(
+            (int) $professionalId,
+            $date,
+            (int) $duration
+        );
+
+        return $this->response->setJSON($slots);
+    }
 }
