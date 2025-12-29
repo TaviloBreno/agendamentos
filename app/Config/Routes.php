@@ -382,6 +382,84 @@ $routes->group('super', ['namespace' => 'App\Controllers\Super', 'filter' => 'au
         // GET /super/whatsapp/qrcode → Obtém QR Code para conexão
         $routes->get('qrcode', 'WhatsAppController::qrcode', ['as' => 'super.whatsapp.qrcode']);
     });
+
+    // -----------------------------------------------------------------
+    // Rotas de Empresas/Tenants (Multi-tenant)
+    // -----------------------------------------------------------------
+    $routes->group('tenants', static function ($routes) {
+        
+        // GET /super/tenants → Lista todas as empresas
+        $routes->get('/', 'TenantsController::index', ['as' => 'super.tenants']);
+        
+        // GET /super/tenants/new → Formulário de nova empresa
+        $routes->get('new', 'TenantsController::new', ['as' => 'super.tenants.new']);
+        
+        // POST /super/tenants → Processa criação
+        $routes->post('/', 'TenantsController::create', ['as' => 'super.tenants.create']);
+        
+        // GET /super/tenants/(:num) → Exibe detalhes
+        $routes->get('(:num)', 'TenantsController::show/$1', ['as' => 'super.tenants.show']);
+        
+        // GET /super/tenants/(:num)/edit → Formulário de edição
+        $routes->get('(:num)/edit', 'TenantsController::edit/$1', ['as' => 'super.tenants.edit']);
+        
+        // PUT /super/tenants/(:num) → Processa atualização
+        $routes->put('(:num)', 'TenantsController::update/$1', ['as' => 'super.tenants.update']);
+        
+        // PUT /super/tenants/(:num)/status → Toggle status
+        $routes->put('(:num)/status', 'TenantsController::toggleStatus/$1', ['as' => 'super.tenants.status']);
+        
+        // DELETE /super/tenants/(:num) → Remove empresa
+        $routes->delete('(:num)', 'TenantsController::delete/$1', ['as' => 'super.tenants.delete']);
+    });
+});
+
+// =========================================================================
+// ROTAS DE PAGAMENTO
+// =========================================================================
+/**
+ * Sistema de Pagamentos Online
+ * 
+ * GET  /payment/checkout/(:num) → Página de checkout
+ * POST /payment/pix             → Cria pagamento PIX
+ * POST /payment/preference      → Cria preferência MP
+ * GET  /payment/success/(:num)  → Página de sucesso
+ * GET  /payment/failure/(:num)  → Página de falha
+ * GET  /payment/pending/(:num)  → Página de pendente
+ * GET  /payment/status/(:num)   → Verifica status (JSON)
+ */
+$routes->group('payment', static function ($routes) {
+    $routes->get('checkout/(:num)', 'PaymentController::checkout/$1', ['as' => 'payment.checkout']);
+    $routes->post('pix', 'PaymentController::createPix', ['as' => 'payment.pix']);
+    $routes->post('preference', 'PaymentController::createPreference', ['as' => 'payment.preference']);
+    $routes->get('success/(:num)', 'PaymentController::success/$1', ['as' => 'payment.success']);
+    $routes->get('failure/(:num)', 'PaymentController::failure/$1', ['as' => 'payment.failure']);
+    $routes->get('pending/(:num)', 'PaymentController::pending/$1', ['as' => 'payment.pending']);
+    $routes->get('status/(:num)', 'PaymentController::checkStatus/$1', ['as' => 'payment.status']);
+});
+
+// =========================================================================
+// WEBHOOKS (Serviços externos)
+// =========================================================================
+/**
+ * Endpoints para receber notificações de gateways de pagamento
+ */
+$routes->group('api/webhooks', ['namespace' => 'App\Controllers\Api'], static function ($routes) {
+    $routes->post('mercadopago', 'WebhooksController::mercadopago');
+    $routes->post('stripe', 'WebhooksController::stripe');
+    $routes->post('pagseguro', 'WebhooksController::pagseguro');
+});
+
+// =========================================================================
+// ROTAS MULTI-TENANT (Área pública por empresa)
+// =========================================================================
+/**
+ * Acesso por slug da empresa: /t/{slug}
+ * Exemplo: /t/clinica-exemplo
+ */
+$routes->group('t/(:segment)', static function ($routes) {
+    $routes->get('/', 'SchedulesController::home/$1', ['as' => 'tenant.home']);
+    $routes->get('agendar', 'SchedulesController::schedule/$1', ['as' => 'tenant.schedule']);
 });
 
 /**
