@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Sistema de Agendamentos - Login">
+    <meta name="author" content="Sistema de Agendamentos">
+
+    <title><?= esc($title ?? 'Login | Sistema') ?></title>
+
+    <!-- Custom fonts for this template-->
+    <link href="<?= base_url('back/vendor/fontawesome-free/css/all.min.css') ?>" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="<?= base_url('back/css/sb-admin-2.min.css') ?>" rel="stylesheet">
+
+    <style>
+        .bg-login-image {
+            background: url("<?= base_url('back/img/login-bg.jpg') ?>");
+            background-position: center;
+            background-size: cover;
+        }
+        .bg-gradient-primary {
+            background: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+        }
+    </style>
+
+</head>
+
+<body class="bg-gradient-primary">
+
+    <div class="container">
+
+        <!-- Outer Row -->
+        <div class="row justify-content-center">
+
+            <div class="col-xl-10 col-lg-12 col-md-9">
+
+                <div class="card o-hidden border-0 shadow-lg my-5">
+                    <div class="card-body p-0">
+                        <!-- Nested Row within Card Body -->
+                        <div class="row">
+                            <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
+                            <div class="col-lg-6">
+                                <div class="p-5">
+                                    <div class="text-center">
+                                        <h1 class="h4 text-gray-900 mb-4">
+                                            <i class="fas fa-calendar-check text-primary"></i>
+                                            Sistema de Agendamentos
+                                        </h1>
+                                    </div>
+                                    
+                                    <!-- Mensagens Flash -->
+                                    <?php if (session()->has('error')): ?>
+                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                            <i class="fas fa-exclamation-circle mr-2"></i>
+                                            <?= session('error') ?>
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Fechar">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php if (session()->has('success')): ?>
+                                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                            <i class="fas fa-check-circle mr-2"></i>
+                                            <?= session('success') ?>
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Fechar">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php if (session()->has('errors')): ?>
+                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                                            <ul class="mb-0 pl-3">
+                                                <?php foreach (session('errors') as $error): ?>
+                                                    <li><?= esc($error) ?></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Fechar">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <!-- Formulário de Login -->
+                                    <form class="user" action="<?= base_url('/') ?>" method="POST">
+                                        <?= csrf_field() ?>
+                                        
+                                        <div class="form-group">
+                                            <input 
+                                                type="email" 
+                                                class="form-control form-control-user <?= session('errors.email') ? 'is-invalid' : '' ?>"
+                                                id="email" 
+                                                name="email"
+                                                aria-describedby="emailHelp"
+                                                placeholder="Digite seu e-mail..."
+                                                value="<?= old('email') ?>"
+                                                autofocus
+                                                required
+                                            >
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <input 
+                                                type="password" 
+                                                class="form-control form-control-user <?= session('errors.password') ? 'is-invalid' : '' ?>"
+                                                id="password" 
+                                                name="password"
+                                                placeholder="Senha"
+                                                required
+                                            >
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <div class="custom-control custom-checkbox small">
+                                                <input type="checkbox" class="custom-control-input" id="rememberMe">
+                                                <label class="custom-control-label" for="rememberMe">Lembrar-me</label>
+                                            </div>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-primary btn-user btn-block">
+                                            <i class="fas fa-sign-in-alt mr-2"></i>
+                                            Entrar
+                                        </button>
+                                        
+                                    </form>
+                                    
+                                    <hr>
+                                    
+                                    <div class="text-center">
+                                        <a class="small" href="#">Esqueceu a senha?</a>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="<?= base_url('back/vendor/jquery/jquery.min.js') ?>"></script>
+    <script src="<?= base_url('back/vendor/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="<?= base_url('back/vendor/jquery-easing/jquery.easing.min.js') ?>"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="<?= base_url('back/js/sb-admin-2.min.js') ?>"></script>
+
+</body>
+
+</html>
