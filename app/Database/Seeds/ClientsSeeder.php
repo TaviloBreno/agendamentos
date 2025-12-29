@@ -15,7 +15,7 @@ class ClientsSeeder extends Seeder
         $faker = Factory::create('pt_BR');
 
         $data = [];
-        $numClients = 50; // Criar 50 clientes
+        $numClients = 100; // Criar 100 clientes
 
         for ($i = 0; $i < $numClients; $i++) {
             $gender = $faker->randomElement(['M', 'F']);
@@ -35,7 +35,7 @@ class ClientsSeeder extends Seeder
                 'zip_code'   => $faker->postcode,
                 'notes'      => $faker->optional(0.3)->sentence,
                 'active'     => 1,
-                'created_at' => date('Y-m-d H:i:s'),
+                'created_at' => $faker->dateTimeBetween('-1 year', 'now')->format('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
             ];
         }
