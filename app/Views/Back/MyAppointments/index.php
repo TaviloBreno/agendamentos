@@ -8,7 +8,7 @@
         <i class="fas fa-calendar-check mr-2"></i>
         <?= esc($pageHeading ?? 'Meus Agendamentos') ?>
     </h1>
-    <a href="<?= route_to('schedule') ?>" class="btn btn-primary btn-sm shadow-sm">
+    <a href="<?= route_to('admin.my.appointments.new') ?>" class="btn btn-primary btn-sm shadow-sm">
         <i class="fas fa-plus fa-sm mr-1"></i> Novo Agendamento
     </a>
 </div>
@@ -52,7 +52,7 @@
                 <i class="fas fa-calendar-times fa-4x text-gray-300 mb-3"></i>
                 <h5 class="text-gray-600">Nenhum agendamento encontrado</h5>
                 <p class="text-muted">Você ainda não possui agendamentos registrados.</p>
-                <a href="<?= route_to('schedule') ?>" class="btn btn-primary mt-2">
+                <a href="<?= route_to('admin.my.appointments.new') ?>" class="btn btn-primary mt-2">
                     <i class="fas fa-plus mr-1"></i> Fazer um Agendamento
                 </a>
             </div>

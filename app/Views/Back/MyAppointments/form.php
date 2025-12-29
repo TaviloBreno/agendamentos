@@ -404,7 +404,7 @@ $(document).ready(function() {
         $('#available_slot').html('<option value="">Carregando...</option>');
         
         $.ajax({
-            url: '<?= route_to('super.appointments.slots') ?>',
+            url: '<?= route_to('admin.my.appointments.slots') ?>',
             data: {
                 professional_id: professionalId,
                 date: date,

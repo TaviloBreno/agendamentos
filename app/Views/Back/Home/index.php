@@ -126,7 +126,7 @@
                         <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
                             Agendar Horário
                         </div>
-                        <a href="<?= route_to('schedule') ?>" class="btn btn-info btn-sm">
+                        <a href="<?= route_to('admin.my.appointments.new') ?>" class="btn btn-info btn-sm">
                             <i class="fas fa-plus mr-1"></i> Novo
                         </a>
                     </div>
