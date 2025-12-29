@@ -55,7 +55,7 @@ class AuthFilter implements FilterInterface
             $session->set('redirect_url', current_url());
             
             return redirect()
-                ->to('/')
+                ->to(route_to('login'))
                 ->with('error', 'Você precisa fazer login para acessar esta área.');
         }
 
