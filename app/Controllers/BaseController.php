@@ -31,22 +31,18 @@ abstract class BaseController extends Controller
      * Helpers carregados globalmente para todos os controllers
      * 
      * =========================================================================
-     * FORM HELPER
+     * HELPERS DISPONÍVEIS
      * =========================================================================
      * 
-     * O helper 'form' disponibiliza funções para geração de formulários:
+     * form    → form_open(), form_close(), form_hidden(), form_dropdown()
+     * html    → anchor(), img(), link_tag()
+     * general → showErrorInput(), hasErrorInput(), formatPhone(), formatDate()
      * 
-     * - form_open()   → Abre <form> com CSRF automático
-     * - form_close()  → Fecha </form>
-     * - form_hidden() → Gera <input type="hidden">
-     * - form_input()  → Gera <input type="text">
-     * - form_label()  → Gera <label>
-     * 
-     * Ao definir aqui, não precisa chamar helper('form') em cada view.
+     * Ao definir aqui, não precisa chamar helper() em cada view.
      * 
      * @var array<string>
      */
-    protected $helpers = ['form', 'html'];
+    protected $helpers = ['form', 'html', 'general'];
 
     /**
      * @return void
@@ -117,6 +113,66 @@ abstract class BaseController extends Controller
         
         foreach ($fields as $field) {
             $data[$field] = $this->request->getPost($field);
+        }
+        
+        return $data;
+    }
+
+    /**
+     * Limpa os dados do POST removendo campos de controle
+     * 
+     * =========================================================================
+     * POR QUE ESTE MÉTODO EXISTE
+     * =========================================================================
+     * 
+     * Quando usamos method spoofing (ex.: PUT via POST com _method),
+     * o campo '_method' é enviado junto com os dados do formulário.
+     * 
+     * Se passarmos $this->request->getPost() diretamente para fill(),
+     * a Entity receberá '_method' como propriedade, causando problemas.
+     * 
+     * Este método remove:
+     * - _method    → Method spoofing do CodeIgniter
+     * - csrf       → Token CSRF (nome configurado em Security.php)
+     * - csrf_*     → Qualquer campo que comece com csrf_
+     * 
+     * =========================================================================
+     * USO NO CONTROLLER
+     * =========================================================================
+     * 
+     *   $data = $this->cleanRequest();
+     *   $entity->fill($data);
+     * 
+     *   // Ou especificando campos extras para remover:
+     *   $data = $this->cleanRequest(['campo_extra', 'outro_campo']);
+     * 
+     * @param array<string> $extraFields Campos adicionais para remover
+     * @return array<string, mixed> Dados limpos do POST
+     */
+    protected function cleanRequest(array $extraFields = []): array
+    {
+        // Obtém todos os dados do POST
+        $data = $this->request->getPost();
+        
+        // Campos de controle que devem ser removidos
+        $controlFields = [
+            '_method',  // Method spoofing (PUT, DELETE, PATCH via POST)
+            'csrf',     // Token CSRF (nome padrão configurado)
+        ];
+        
+        // Adiciona campos extras informados
+        $fieldsToRemove = array_merge($controlFields, $extraFields);
+        
+        // Remove os campos de controle
+        foreach ($fieldsToRemove as $field) {
+            unset($data[$field]);
+        }
+        
+        // Remove qualquer campo que comece com 'csrf_' (nomes alternativos)
+        foreach ($data as $key => $value) {
+            if (str_starts_with($key, 'csrf_')) {
+                unset($data[$key]);
+            }
         }
         
         return $data;

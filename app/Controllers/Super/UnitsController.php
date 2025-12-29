@@ -215,19 +215,37 @@ class UnitsController extends BaseController
      * PUT /super/units/(:num)
      * 
      * =========================================================================
-     * FLUXO DE VALIDAÇÃO E PERSISTÊNCIA
+     * FLUXO COMPLETO DE ATUALIZAÇÃO
      * =========================================================================
      * 
-     * 1. Busca a unidade via findOrFail() (segurança: evita manipulação de URL)
-     * 2. Coleta dados do POST
-     * 3. Tenta atualizar via Model (validação automática pelas rules)
-     * 4. Se falhar → redirect back com withInput() e erros
-     * 5. Se sucesso → redirect para listagem com flash message
+     * 1. Valida o método HTTP (PUT via method spoofing)
+     * 2. Busca a entidade existente (segurança: evita manipulação de URL)
+     * 3. Limpa os dados do POST (remove _method, csrf)
+     * 4. Popula a Entity via fill()
+     * 5. Verifica se houve alteração via hasChanged()
+     * 6. Se não mudou → redirect com mensagem info
+     * 7. Se mudou → valida e salva via Model
+     * 8. Trata erros de validação com errorsValidation
+     * 9. Sucesso → redirect para listagem com flash success
      * 
-     * IMPORTANTE sobre is_unique no UPDATE:
-     * O Model usa o placeholder {id} nas rules. Quando chamamos update($id, $data),
-     * o CI4 automaticamente substitui {id} pelo valor de $id, permitindo que
-     * o próprio registro não "viole" a regra de unicidade.
+     * =========================================================================
+     * SOBRE O FILL() DA ENTITY
+     * =========================================================================
+     * 
+     * O método fill() da Entity popula automaticamente as propriedades
+     * com base nas chaves do array. As chaves devem corresponder aos
+     * atributos da Entity ou às colunas mapeadas em $datamap.
+     * 
+     * IMPORTANTE: fill() não ignora campos desconhecidos, por isso usamos
+     * cleanRequest() para remover _method e csrf antes.
+     * 
+     * =========================================================================
+     * SOBRE O HASCHANGED() DA ENTITY
+     * =========================================================================
+     * 
+     * hasChanged() verifica se a Entity tem diferenças entre os valores
+     * originais (do banco) e os atuais (após fill). Evita UPDATEs
+     * desnecessários quando o usuário clica em "Salvar" sem alterar nada.
      * 
      * Requer token CSRF válido (configurado em Config/Filters.php).
      * 
@@ -237,61 +255,92 @@ class UnitsController extends BaseController
     public function update(int $id)
     {
         /**
-         * BUSCA O REGISTRO EXISTENTE
+         * VALIDAÇÃO DO MÉTODO HTTP
+         * ========================
+         * 
+         * Mesmo usando method spoofing (_method=PUT), o método real é POST.
+         * Verificamos via checkMethod() para garantir consistência.
+         * 
+         * NOTA: Como usamos PUT nas rotas, o CI4 já valida. Este check
+         * é uma camada extra de segurança/documentação.
+         */
+        // $this->checkMethod('put'); // Opcional: CI4 já valida pela rota
+
+        /**
+         * BUSCA A ENTIDADE EXISTENTE
          * ==========================
          * 
-         * Mesmo que já tenhamos o $id, buscamos do banco para:
+         * Buscamos do banco novamente para:
          * 1. Garantir que o registro existe (findOrFail lança 404)
-         * 2. Evitar manipulação de HTML/URL por usuário mal-intencionado
-         * 3. Ter acesso ao nome original para mensagens
+         * 2. Ter o estado original para comparação via hasChanged()
+         * 3. Evitar manipulação de HTML/URL por usuário mal-intencionado
          */
         $unit = $this->unitModel->findOrFail($id);
 
         /**
-         * COLETA DADOS DO POST
-         * ====================
+         * LIMPA E POPULA A ENTITY
+         * =======================
          * 
-         * Usamos getPost() para cada campo esperado.
-         * O campo 'active' usa ?? 0 como fallback (técnica do hidden).
-         * O campo 'services' é convertido para JSON.
+         * cleanRequest() remove _method e csrf dos dados do POST.
+         * fill() popula as propriedades da Entity automaticamente.
+         * 
+         * O campo 'services' precisa de tratamento especial (JSON),
+         * então ajustamos após obter os dados limpos.
          */
-        $data = [
-            'name'         => $this->request->getPost('name'),
-            'email'        => $this->request->getPost('email'),
-            'phone'        => $this->request->getPost('phone'),
-            'coordinator'  => $this->request->getPost('coordinator'),
-            'address'      => $this->request->getPost('address'),
-            'services'     => json_encode($this->request->getPost('services') ?? []),
-            'start_time'   => $this->request->getPost('start_time'),
-            'end_time'     => $this->request->getPost('end_time'),
-            'service_time' => $this->request->getPost('service_time'),
-            'active'       => $this->request->getPost('active') ?? 0,
-        ];
+        $data = $this->cleanRequest();
+        
+        // Tratamento especial para o campo services (JSON)
+        if (isset($data['services'])) {
+            $data['services'] = json_encode($data['services']);
+        } else {
+            $data['services'] = json_encode([]);
+        }
+        
+        // Popula a Entity com os dados do formulário
+        $unit->fill($data);
 
         /**
-         * TENTA ATUALIZAR (COM VALIDAÇÃO AUTOMÁTICA)
-         * ==========================================
+         * VERIFICA SE HOUVE ALTERAÇÃO
+         * ==========================
          * 
-         * O Model valida automaticamente usando $validationRules.
-         * O placeholder {id} nas regras is_unique é substituído por $id.
+         * hasChanged() compara os valores atuais com os originais.
+         * Se nada mudou, não faz sentido executar UPDATE no banco.
          * 
-         * Se a validação falhar, update() retorna false e os erros
-         * ficam disponíveis em $this->unitModel->errors().
+         * Retornamos com mensagem informativa para o usuário.
          */
-        $updated = $this->unitModel->update($id, $data);
+        if (! $unit->hasChanged()) {
+            return redirect()->back()
+                           ->with('info', 'Não há dados para atualizar. Nenhuma alteração foi detectada.');
+        }
 
-        if ($updated === false) {
+        /**
+         * TENTA SALVAR (COM VALIDAÇÃO AUTOMÁTICA)
+         * =======================================
+         * 
+         * save() no Model aceita uma Entity e executa:
+         * 1. Validação usando $validationRules
+         * 2. INSERT ou UPDATE baseado na presença de ID
+         * 
+         * Como a Entity já tem ID, será UPDATE.
+         * O placeholder {id} nas regras is_unique é substituído.
+         */
+        $saved = $this->unitModel->save($unit);
+
+        if ($saved === false) {
             /**
              * VALIDAÇÃO FALHOU
              * ================
              * 
-             * - back() → Volta para a página anterior (edit)
-             * - withInput() → Mantém os dados digitados (para old())
-             * - with('errors', ...) → Flash data com array de erros
+             * Usamos 'errorsValidation' para os erros por campo
+             * e 'danger' para a mensagem geral.
+             * 
+             * O helper showErrorInput() busca em 'errorsValidation'.
+             * O partial _messages.php exibe ambos.
              */
             return redirect()->back()
                            ->withInput()
-                           ->with('errors', $this->unitModel->errors());
+                           ->with('errorsValidation', $this->unitModel->errors())
+                           ->with('danger', 'Verifique os erros de validação e tente novamente.');
         }
 
         /**
@@ -299,7 +348,6 @@ class UnitsController extends BaseController
          * =======
          * 
          * Redireciona para a listagem com mensagem de sucesso.
-         * Usamos route_to() para gerar a URL da rota nomeada.
          */
         return redirect()->to(route_to('super.units'))
                        ->with('success', "Unidade '{$unit->name}' atualizada com sucesso!");

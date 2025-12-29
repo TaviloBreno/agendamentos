@@ -348,6 +348,9 @@
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
 
+                    <!-- Flash Messages (success, danger, warning, info, errorsValidation) -->
+                    <?= $this->include('Back/Layout/_messages') ?>
+
                     <!-- Seção para conteúdo principal da página -->
                     <?= $this->renderSection('content') ?>
 

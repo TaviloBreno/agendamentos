@@ -72,20 +72,21 @@
     </a>
 </div>
 
-<!-- Mensagens de Erro de Validação -->
-<?php if (session()->has('errors')): ?>
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <h6 class="alert-heading"><i class="fas fa-exclamation-triangle mr-2"></i>Erro de validação</h6>
-        <ul class="mb-0">
-            <?php foreach (session('errors') as $error): ?>
-                <li><?= esc($error) ?></li>
-            <?php endforeach; ?>
-        </ul>
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-<?php endif; ?>
+<?php
+/**
+ * MENSAGENS DE FEEDBACK
+ * =====================
+ * 
+ * As mensagens de erro de validação e flash messages (success, danger, info)
+ * agora são exibidas automaticamente pelo partial _messages.php incluído
+ * no layout principal (main.php).
+ * 
+ * Não é mais necessário incluir bloco de erros aqui.
+ * 
+ * Os erros específicos por campo são exibidos via showErrorInput()
+ * ao lado de cada input.
+ */
+?>
 
 <!-- Form Card -->
 <div class="card shadow mb-4">
@@ -128,13 +129,14 @@
                             Nome da Unidade <span class="text-danger">*</span>
                         </label>
                         <input type="text" 
-                               class="form-control" 
+                               class="form-control <?= hasErrorInput('name') ? 'is-invalid' : '' ?>" 
                                id="name" 
                                name="name" 
                                value="<?= esc(old('name', $unit->name ?? '')) ?>"
                                placeholder="Ex: Unidade Centro"
                                maxlength="70"
                                required>
+                        <?= showErrorInput('name') ?>
                         <small class="form-text text-muted">Nome de identificação da unidade</small>
                     </div>
                 </div>
@@ -146,13 +148,14 @@
                             E-mail <span class="text-danger">*</span>
                         </label>
                         <input type="email" 
-                               class="form-control" 
+                               class="form-control <?= hasErrorInput('email') ? 'is-invalid' : '' ?>" 
                                id="email" 
                                name="email" 
                                value="<?= esc(old('email', $unit->email ?? '')) ?>"
                                placeholder="contato@unidade.com"
                                maxlength="100"
                                required>
+                        <?= showErrorInput('email') ?>
                         <small class="form-text text-muted">E-mail para contato e notificações</small>
                     </div>
                 </div>
@@ -169,13 +172,14 @@
                             Telefone <span class="text-danger">*</span>
                         </label>
                         <input type="tel" 
-                               class="form-control" 
+                               class="form-control <?= hasErrorInput('phone') ? 'is-invalid' : '' ?>" 
                                id="phone" 
                                name="phone" 
                                value="<?= esc(old('phone', $unit->phone ?? '')) ?>"
                                placeholder="(11) 99999-9999"
                                maxlength="14"
                                required>
+                        <?= showErrorInput('phone') ?>
                     </div>
                 </div>
 
@@ -183,16 +187,16 @@
                 <div class="col-md-8">
                     <div class="form-group">
                         <label for="coordinator">
-                            Coordenador/Responsável <span class="text-danger">*</span>
+                            Coordenador/Responsável
                         </label>
                         <input type="text" 
-                               class="form-control" 
+                               class="form-control <?= hasErrorInput('coordinator') ? 'is-invalid' : '' ?>" 
                                id="coordinator" 
                                name="coordinator" 
                                value="<?= esc(old('coordinator', $unit->coordinator ?? '')) ?>"
                                placeholder="Nome do responsável pela unidade"
-                               maxlength="70"
-                               required>
+                               maxlength="70">
+                        <?= showErrorInput('coordinator') ?>
                     </div>
                 </div>
             </div>
@@ -207,13 +211,14 @@
                             Endereço <span class="text-danger">*</span>
                         </label>
                         <input type="text" 
-                               class="form-control" 
+                               class="form-control <?= hasErrorInput('address') ? 'is-invalid' : '' ?>" 
                                id="address" 
                                name="address" 
                                value="<?= esc(old('address', $unit->address ?? '')) ?>"
                                placeholder="Rua, número, bairro, cidade - UF"
-                               maxlength="255"
+                               maxlength="128"
                                required>
+                        <?= showErrorInput('address') ?>
                     </div>
                 </div>
             </div>
@@ -234,11 +239,12 @@
                             Horário de Início <span class="text-danger">*</span>
                         </label>
                         <input type="time" 
-                               class="form-control" 
+                               class="form-control <?= hasErrorInput('start_time') ? 'is-invalid' : '' ?>" 
                                id="start_time" 
                                name="start_time" 
                                value="<?= esc(old('start_time', $unit->start_time ?? '08:00')) ?>"
                                required>
+                        <?= showErrorInput('start_time') ?>
                         <small class="form-text text-muted">Início do expediente</small>
                     </div>
                 </div>
@@ -250,11 +256,12 @@
                             Horário de Término <span class="text-danger">*</span>
                         </label>
                         <input type="time" 
-                               class="form-control" 
+                               class="form-control <?= hasErrorInput('end_time') ? 'is-invalid' : '' ?>" 
                                id="end_time" 
                                name="end_time" 
                                value="<?= esc(old('end_time', $unit->end_time ?? '18:00')) ?>"
                                required>
+                        <?= showErrorInput('end_time') ?>
                         <small class="form-text text-muted">Fim do expediente</small>
                     </div>
                 </div>
@@ -286,6 +293,7 @@
                          */
                         ?>
                         <?= $timesInterval ?>
+                        <?= showErrorInput('service_time') ?>
                         <small class="form-text text-muted">
                             Duração de cada atendimento (intervalo entre agendamentos)
                         </small>
