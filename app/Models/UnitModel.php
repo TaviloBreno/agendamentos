@@ -427,6 +427,30 @@ class UnitModel extends Model
     }
 
     /**
+     * Retorna unidades formatadas para dropdown/select
+     * 
+     * @param bool $onlyActive Filtrar apenas ativas
+     * @return array [id => name]
+     */
+    public function getForDropdown(bool $onlyActive = true): array
+    {
+        $builder = $this->builder();
+        
+        if ($onlyActive) {
+            $builder->where('active', 1);
+        }
+        
+        $units = $builder->orderBy('name', 'ASC')->get()->getResultArray();
+        
+        $dropdown = [];
+        foreach ($units as $unit) {
+            $dropdown[$unit['id']] = $unit['name'];
+        }
+        
+        return $dropdown;
+    }
+
+    /**
      * Busca unidade por email
      * 
      * @param string $email
