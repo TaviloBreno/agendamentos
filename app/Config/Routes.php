@@ -1,5 +1,6 @@
 <?php
 
+use App\Controllers\AuthController;
 use App\Controllers\Super\HomeController;
 use App\Controllers\Super\UnitsController;
 use CodeIgniter\Router\RouteCollection;
@@ -9,9 +10,18 @@ use CodeIgniter\Router\RouteCollection;
  */
 
 // =========================================================================
-// ROTA PRINCIPAL (Frontend)
+// ROTAS DE AUTENTICAÇÃO
 // =========================================================================
-$routes->get('/', 'Home::index');
+/**
+ * Sistema de Login/Logout
+ * 
+ * GET  /        → Exibe formulário de login
+ * POST /        → Processa tentativa de login
+ * GET  /logout  → Encerra sessão
+ */
+$routes->get('/', 'AuthController::login', ['as' => 'login']);
+$routes->post('/', 'AuthController::attempt', ['as' => 'login.attempt']);
+$routes->get('logout', 'AuthController::logout', ['as' => 'logout']);
 
 // =========================================================================
 // GRUPO DE ROTAS: SUPER (Painel Administrativo)
@@ -20,7 +30,7 @@ $routes->get('/', 'Home::index');
  * Organização com grupos de rotas para:
  * - Evitar repetição de prefixos
  * - Manter legibilidade
- * - Facilitar aplicação de filtros (autenticação/permissão) futuramente
+ * - Filtro 'auth' aplicado para exigir login
  * 
  * Estrutura:
  * /super           → Dashboard do painel
@@ -28,7 +38,7 @@ $routes->get('/', 'Home::index');
  * /super/units/new → Formulário de nova unidade
  * etc.
  */
-$routes->group('super', ['namespace' => 'App\Controllers\Super'], static function ($routes) {
+$routes->group('super', ['namespace' => 'App\Controllers\Super', 'filter' => 'auth'], static function ($routes) {
     
     // Dashboard do painel administrativo
     // GET /super → Super\HomeController::index
