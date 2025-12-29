@@ -32,8 +32,13 @@ class Security extends BaseConfig
      * --------------------------------------------------------------------------
      *
      * Token name for Cross Site Request Forgery protection.
+     * 
+     * PERSONALIZADO: Alterado de 'csrf_test_name' para 'csrf'
+     * - Nome simples e sem conflito com campos do formulário
+     * - Evita acentos e caracteres especiais
+     * - Fácil de identificar no "View Source" do navegador
      */
-    public string $tokenName = 'csrf_test_name';
+    public string $tokenName = 'csrf';
 
     /**
      * --------------------------------------------------------------------------

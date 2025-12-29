@@ -81,11 +81,16 @@ class Unit extends Entity
      * - array, object, json, json-array
      * - datetime, timestamp, uri
      * 
+     * IMPORTANTE: 'active' usa 'int-bool' para:
+     * - Retornar boolean ao acessar (true/false)
+     * - Aceitar tanto 0/1 quanto true/false ao definir
+     * - Persistir como 0/1 no banco (TINYINT)
+     * 
      * @var array<string, string>
      */
     protected $casts = [
         'id'       => 'integer',
-        'active'   => 'integer',
+        'active'   => 'int-bool', // 0/1 no banco, true/false no PHP
         'services' => 'json-array', // Converte JSON para array PHP automaticamente
     ];
 

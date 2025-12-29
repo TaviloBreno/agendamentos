@@ -28,6 +28,27 @@ abstract class BaseController extends Controller
     // protected $session;
 
     /**
+     * Helpers carregados globalmente para todos os controllers
+     * 
+     * =========================================================================
+     * FORM HELPER
+     * =========================================================================
+     * 
+     * O helper 'form' disponibiliza funções para geração de formulários:
+     * 
+     * - form_open()   → Abre <form> com CSRF automático
+     * - form_close()  → Fecha </form>
+     * - form_hidden() → Gera <input type="hidden">
+     * - form_input()  → Gera <input type="text">
+     * - form_label()  → Gera <label>
+     * 
+     * Ao definir aqui, não precisa chamar helper('form') em cada view.
+     * 
+     * @var array<string>
+     */
+    protected $helpers = ['form', 'html'];
+
+    /**
      * @return void
      */
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
