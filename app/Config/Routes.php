@@ -355,6 +355,33 @@ $routes->group('super', ['namespace' => 'App\Controllers\Super', 'filter' => 'au
         // GET /super/reports/export → Exportar relatórios em CSV
         $routes->get('export', 'ReportsController::export', ['as' => 'super.reports.export']);
     });
+    
+    // -----------------------------------------------------------------
+    // Rotas de WhatsApp (Configuração e Fila)
+    // -----------------------------------------------------------------
+    $routes->group('whatsapp', static function ($routes) {
+        
+        // GET /super/whatsapp → Página de configuração
+        $routes->get('/', 'WhatsAppController::index', ['as' => 'super.whatsapp']);
+        
+        // POST /super/whatsapp/save → Salva configurações
+        $routes->post('save', 'WhatsAppController::save', ['as' => 'super.whatsapp.save']);
+        
+        // GET /super/whatsapp/status → Verifica status conexão (JSON)
+        $routes->get('status', 'WhatsAppController::status', ['as' => 'super.whatsapp.status']);
+        
+        // POST /super/whatsapp/test → Envia mensagem de teste
+        $routes->post('test', 'WhatsAppController::test', ['as' => 'super.whatsapp.test']);
+        
+        // GET /super/whatsapp/queue → Lista fila de notificações
+        $routes->get('queue', 'WhatsAppController::queue', ['as' => 'super.whatsapp.queue']);
+        
+        // POST /super/whatsapp/process → Processa fila manualmente
+        $routes->post('process', 'WhatsAppController::process', ['as' => 'super.whatsapp.process']);
+        
+        // GET /super/whatsapp/qrcode → Obtém QR Code para conexão
+        $routes->get('qrcode', 'WhatsAppController::qrcode', ['as' => 'super.whatsapp.qrcode']);
+    });
 });
 
 /**
