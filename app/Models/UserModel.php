@@ -72,6 +72,12 @@ class UserModel extends Model
         'remember_token',
         'reset_token',
         'reset_expires_at',
+        'whatsapp_enabled',
+        'whatsapp_provider',
+        'whatsapp_instance_id',
+        'whatsapp_token',
+        'whatsapp_phone',
+        'whatsapp_status',
     ];
 
     // =========================================================================
