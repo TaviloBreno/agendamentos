@@ -20,12 +20,19 @@
 
     <style>
         .bg-login-image {
-            background: url("<?= base_url('back/img/login-bg.jpg') ?>");
+            background: url("https://images.unsplash.com/photo-1506784983877-45594efa4cbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80");
             background-position: center;
             background-size: cover;
         }
         .bg-gradient-primary {
             background: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+        }
+        /* Centralizar verticalmente */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 
@@ -33,18 +40,18 @@
 
 <body class="bg-gradient-primary">
 
-    <div class="container">
+    <div class="container login-container">
 
         <!-- Outer Row -->
-        <div class="row justify-content-center">
+        <div class="row justify-content-center w-100">
 
             <div class="col-xl-10 col-lg-12 col-md-9">
 
-                <div class="card o-hidden border-0 shadow-lg my-5">
+                <div class="card o-hidden border-0 shadow-lg">
                     <div class="card-body p-0">
                         <!-- Nested Row within Card Body -->
                         <div class="row">
-                            <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
+                            <div class="col-lg-6 d-none d-lg-block bg-login-image" style="min-height: 400px;"></div>
                             <div class="col-lg-6">
                                 <div class="p-5">
                                     <div class="text-center">
