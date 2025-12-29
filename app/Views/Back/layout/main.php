@@ -141,6 +141,30 @@
 
             <!-- Heading -->
             <div class="sidebar-heading">
+                Comunicação
+            </div>
+
+            <!-- Nav Item - WhatsApp -->
+            <li class="nav-item <?= url_is('super/whatsapp*') ? 'active' : '' ?>">
+                <a class="nav-link" href="<?= route_to('super.whatsapp') ?>">
+                    <i class="fab fa-fw fa-whatsapp"></i>
+                    <span>WhatsApp</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Relatórios -->
+            <li class="nav-item <?= url_is('super/reports*') ? 'active' : '' ?>">
+                <a class="nav-link" href="<?= route_to('super.reports') ?>">
+                    <i class="fas fa-fw fa-chart-bar"></i>
+                    <span>Relatórios</span>
+                </a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
                 Sistema
             </div>
 

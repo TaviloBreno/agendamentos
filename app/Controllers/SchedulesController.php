@@ -7,6 +7,7 @@ use App\Models\ServiceModel;
 use App\Models\ProfessionalModel;
 use App\Models\AppointmentModel;
 use App\Models\ClientModel;
+use App\Libraries\AppointmentService;
 use CodeIgniter\I18n\Time;
 
 /**
@@ -32,6 +33,7 @@ class SchedulesController extends BaseController
     protected ProfessionalModel $professionalModel;
     protected AppointmentModel $appointmentModel;
     protected ClientModel $clientModel;
+    protected AppointmentService $appointmentService;
 
     /**
      * Construtor - Inicializa dependências
@@ -43,6 +45,7 @@ class SchedulesController extends BaseController
         $this->professionalModel = model('ProfessionalModel');
         $this->appointmentModel = model('AppointmentModel');
         $this->clientModel = model('ClientModel');
+        $this->appointmentService = new AppointmentService();
     }
 
     // =========================================================================
@@ -348,8 +351,12 @@ class SchedulesController extends BaseController
             ]);
         }
         
-        // TODO: Enviar email de confirmação
-        // $this->sendConfirmationEmail($appointmentId);
+        // Enviar notificação via WhatsApp (fila)
+        $appointment = $this->appointmentModel->find($appointmentId);
+        if ($appointment && $appointment->client_phone) {
+            $this->appointmentService->sendConfirmationNotification($appointment);
+            $this->appointmentService->sendReminderNotification($appointment);
+        }
         
         return $this->response->setJSON([
             'success' => true,
@@ -449,6 +456,11 @@ class SchedulesController extends BaseController
         
         // Atualizar status
         $this->appointmentModel->update($id, ['status' => 'cancelled']);
+        
+        // Enviar notificação de cancelamento
+        if ($appointment->client_phone) {
+            $this->appointmentService->sendCancellationNotification($appointment);
+        }
         
         return $this->response->setJSON([
             'success' => true,
