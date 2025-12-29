@@ -127,7 +127,7 @@
                                         
                                         <div class="form-group">
                                             <div class="custom-control custom-checkbox small">
-                                                <input type="checkbox" class="custom-control-input" id="rememberMe">
+                                                <input type="checkbox" class="custom-control-input" id="rememberMe" name="remember_me" value="1">
                                                 <label class="custom-control-label" for="rememberMe">Lembrar-me</label>
                                             </div>
                                         </div>
@@ -142,7 +142,7 @@
                                     <hr>
                                     
                                     <div class="text-center">
-                                        <a class="small" href="#">Esqueceu a senha?</a>
+                                        <a class="small" href="<?= route_to('password.forgot') ?>">Esqueceu a senha?</a>
                                     </div>
                                     
                                 </div>

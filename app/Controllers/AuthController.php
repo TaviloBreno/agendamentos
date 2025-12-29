@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\UserModel;
 use CodeIgniter\HTTP\RedirectResponse;
+use CodeIgniter\Email\Email;
 
 /**
  * AuthController - Controlador de Autenticação
@@ -16,14 +17,19 @@ use CodeIgniter\HTTP\RedirectResponse;
  * - Exibição do formulário de login
  * - Processamento de login
  * - Logout e destruição de sessão
+ * - Recuperação de senha
  * 
  * =========================================================================
  * ROTAS
  * =========================================================================
  * 
- * GET  /        → login()   → Exibe formulário
- * POST /        → attempt() → Processa login
- * GET  /logout  → logout()  → Encerra sessão
+ * GET  /login            → login()        → Exibe formulário
+ * POST /login            → attempt()      → Processa login
+ * GET  /logout           → logout()       → Encerra sessão
+ * GET  /password/forgot  → forgotPassword() → Formulário esqueci senha
+ * POST /password/forgot  → sendResetLink()  → Envia link de reset
+ * GET  /password/reset   → resetPassword()  → Formulário nova senha
+ * POST /password/reset   → updatePassword() → Atualiza senha
  * 
  * @package    App\Controllers
  * @author     Sistema de Agendamentos
@@ -41,12 +47,89 @@ class AuthController extends BaseController
     protected $session;
 
     /**
+     * Nome do cookie "Lembrar-me"
+     */
+    protected string $rememberCookieName = 'remember_token';
+
+    /**
      * Construtor - Inicializa dependências
      */
     public function __construct()
     {
         $this->userModel = new UserModel();
         $this->session = session();
+        
+        // Verificar cookie "Lembrar-me" ao inicializar
+        $this->checkRememberMeCookie();
+    }
+
+    /**
+     * Verifica e processa o cookie "Lembrar-me"
+     */
+    protected function checkRememberMeCookie(): void
+    {
+        // Se já está logado, não precisa verificar
+        if ($this->session->get('isLoggedIn')) {
+            return;
+        }
+
+        $rememberToken = get_cookie($this->rememberCookieName);
+        
+        if ($rememberToken) {
+            // Buscar usuário pelo token
+            $user = $this->userModel->where('remember_token', $rememberToken)->first();
+            
+            if ($user && $user->status === 'active') {
+                // Criar sessão automaticamente
+                $this->session->set([
+                    'userId'     => $user->id,
+                    'userName'   => $user->name,
+                    'userEmail'  => $user->email,
+                    'userRole'   => $user->role,
+                    'isLoggedIn' => true,
+                ]);
+                
+                $this->session->regenerate();
+            } else {
+                // Token inválido, remover cookie
+                delete_cookie($this->rememberCookieName);
+            }
+        }
+    }
+
+    /**
+     * Gera e salva token "Lembrar-me"
+     */
+    protected function setRememberMeCookie(int $userId): void
+    {
+        $token = bin2hex(random_bytes(32));
+        
+        // Salvar token no banco
+        $this->userModel->update($userId, ['remember_token' => $token]);
+        
+        // Criar cookie (válido por 30 dias)
+        set_cookie([
+            'name'     => $this->rememberCookieName,
+            'value'    => $token,
+            'expire'   => 60 * 60 * 24 * 30, // 30 dias
+            'httponly' => true,
+            'secure'   => (ENVIRONMENT === 'production'),
+            'samesite' => 'Lax',
+        ]);
+    }
+
+    /**
+     * Remove cookie e token "Lembrar-me"
+     */
+    protected function clearRememberMeCookie(): void
+    {
+        $userId = $this->session->get('userId');
+        
+        if ($userId) {
+            $this->userModel->update($userId, ['remember_token' => null]);
+        }
+        
+        delete_cookie($this->rememberCookieName);
     }
 
     // =========================================================================
