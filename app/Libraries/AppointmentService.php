@@ -201,6 +201,36 @@ class AppointmentService extends MyBaseService
     }
 
     /**
+     * Verifica se um horário está disponível para agendamento
+     * 
+     * @param int $professionalId
+     * @param string $date
+     * @param string $startTime
+     * @param string $endTime
+     * @param int|null $excludeId Excluir este agendamento da verificação (para edição)
+     * @return bool
+     */
+    public function isSlotAvailable(int $professionalId, string $date, string $startTime, string $endTime, ?int $excludeId = null): bool
+    {
+        $appointmentModel = new AppointmentModel();
+        return !$appointmentModel->hasConflict($professionalId, $date, $startTime, $endTime, $excludeId);
+    }
+
+    /**
+     * Retorna horários disponíveis para um profissional em uma data
+     * 
+     * @param int $professionalId
+     * @param string $date
+     * @param int $duration Duração em minutos
+     * @return array
+     */
+    public function getAvailableSlots(int $professionalId, string $date, int $duration = 30): array
+    {
+        $appointmentModel = new AppointmentModel();
+        return $appointmentModel->getAvailableSlots($professionalId, $date, $duration);
+    }
+
+    /**
      * Retorna dropdown de status
      * 
      * @param string|null $selected

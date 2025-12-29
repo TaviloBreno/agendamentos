@@ -46,26 +46,21 @@ class WhatsAppService
             return false;
         }
 
-        $client = $appointment->getClient();
-        if (!$client || empty($client->phone)) {
+        if (empty($appointment->client_phone)) {
             return false;
         }
 
-        $service = $appointment->getService();
-        $professional = $appointment->getProfessional();
-        $unit = $appointment->getUnit();
-
         $message = $this->buildConfirmationMessage([
-            'client_name' => $client->name,
+            'client_name' => $appointment->client_name,
             'date' => date('d/m/Y', strtotime($appointment->date)),
             'time' => substr($appointment->start_time, 0, 5),
-            'service' => $service->name ?? '-',
-            'professional' => $professional->name ?? '-',
-            'unit' => $unit->name ?? '-',
-            'address' => $unit->address ?? '-',
+            'service' => $appointment->service_name ?? '-',
+            'professional' => $appointment->professional_name ?? '-',
+            'unit' => $appointment->unit_name ?? '-',
+            'address' => $appointment->unit_address ?? '-',
         ]);
 
-        return $this->sendMessage($this->formatPhone($client->phone), $message);
+        return $this->sendMessage($this->formatPhone($appointment->client_phone), $message);
     }
 
     /**
@@ -77,26 +72,21 @@ class WhatsAppService
             return false;
         }
 
-        $client = $appointment->getClient();
-        if (!$client || empty($client->phone)) {
+        if (empty($appointment->client_phone)) {
             return false;
         }
 
-        $service = $appointment->getService();
-        $professional = $appointment->getProfessional();
-        $unit = $appointment->getUnit();
-
         $message = $this->buildReminderMessage([
-            'client_name' => $client->name,
+            'client_name' => $appointment->client_name,
             'date' => date('d/m/Y', strtotime($appointment->date)),
             'time' => substr($appointment->start_time, 0, 5),
-            'service' => $service->name ?? '-',
-            'professional' => $professional->name ?? '-',
-            'unit' => $unit->name ?? '-',
-            'address' => $unit->address ?? '-',
+            'service' => $appointment->service_name ?? '-',
+            'professional' => $appointment->professional_name ?? '-',
+            'unit' => $appointment->unit_name ?? '-',
+            'address' => $appointment->unit_address ?? '-',
         ]);
 
-        return $this->sendMessage($this->formatPhone($client->phone), $message);
+        return $this->sendMessage($this->formatPhone($appointment->client_phone), $message);
     }
 
     /**
@@ -108,19 +98,18 @@ class WhatsAppService
             return false;
         }
 
-        $client = $appointment->getClient();
-        if (!$client || empty($client->phone)) {
+        if (empty($appointment->client_phone)) {
             return false;
         }
 
         $message = $this->buildCancellationMessage([
-            'client_name' => $client->name,
+            'client_name' => $appointment->client_name,
             'date' => date('d/m/Y', strtotime($appointment->date)),
             'time' => substr($appointment->start_time, 0, 5),
             'reason' => $reason,
         ]);
 
-        return $this->sendMessage($this->formatPhone($client->phone), $message);
+        return $this->sendMessage($this->formatPhone($appointment->client_phone), $message);
     }
 
     /**
@@ -132,8 +121,7 @@ class WhatsAppService
             return false;
         }
 
-        $client = $appointment->getClient();
-        if (!$client || empty($client->phone)) {
+        if (empty($appointment->client_phone)) {
             return false;
         }
 
@@ -146,13 +134,13 @@ class WhatsAppService
         ];
 
         $message = "🔔 *Atualização do Agendamento*\n\n";
-        $message .= "Olá, {$client->name}!\n\n";
+        $message .= "Olá, {$appointment->client_name}!\n\n";
         $message .= "Seu agendamento foi atualizado:\n";
         $message .= "📅 *Data:* " . date('d/m/Y', strtotime($appointment->date)) . "\n";
         $message .= "⏰ *Horário:* " . substr($appointment->start_time, 0, 5) . "\n";
         $message .= "📊 *Novo Status:* " . ($statusLabels[$appointment->status] ?? $appointment->status) . "\n";
 
-        return $this->sendMessage($this->formatPhone($client->phone), $message);
+        return $this->sendMessage($this->formatPhone($appointment->client_phone), $message);
     }
 
     /**
