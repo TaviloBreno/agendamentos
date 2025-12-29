@@ -217,7 +217,7 @@ class NotificationController extends BaseController
         }
 
         $this->notificationModel->where('user_id', $userId)
-            ->whereNotNull('read_at')
+            ->where('read_at IS NOT NULL')
             ->delete();
 
         if ($this->request->isAJAX()) {

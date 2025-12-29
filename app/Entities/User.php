@@ -352,7 +352,7 @@ class User extends MyBaseEntity
     {
         return model('NotificationModel')
             ->where('user_id', $this->id)
-            ->whereNull('read_at')
+            ->where('read_at', null)
             ->countAllResults();
     }
 

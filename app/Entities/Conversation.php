@@ -23,7 +23,7 @@ class Conversation extends MyBaseEntity
     {
         return model('ConversationParticipantModel')
             ->where('conversation_id', $this->id)
-            ->whereNull('left_at')
+            ->where('left_at', null)
             ->findAll();
     }
 
@@ -107,7 +107,7 @@ class Conversation extends MyBaseEntity
         return model('ConversationParticipantModel')
             ->where('conversation_id', $this->id)
             ->where('user_id', $userId)
-            ->whereNull('left_at')
+            ->where('left_at', null)
             ->countAllResults() > 0;
     }
 }
