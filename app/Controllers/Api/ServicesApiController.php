@@ -25,8 +25,43 @@ class ServicesApiController extends BaseApiController
         $unitId = $this->request->getGet('unit_id');
         $onlyActive = $this->request->getGet('active') !== 'false';
         
+        // Se unit_id foi informado, busca os serviços associados à unidade
         if ($unitId) {
-            $this->serviceModel->where('unit_id', $unitId);
+            $unitModel = model('UnitModel');
+            $unit = $unitModel->find($unitId);
+            
+            if ($unit && !empty($unit->services)) {
+                // Decodifica o JSON de serviços da unidade
+                $serviceIds = is_string($unit->services) 
+                    ? json_decode($unit->services, true) 
+                    : $unit->services;
+                
+                if (!empty($serviceIds) && is_array($serviceIds)) {
+                    $this->serviceModel->whereIn('id', $serviceIds);
+                } else {
+                    // Nenhum serviço associado
+                    return $this->respondSuccess([
+                        'items' => [],
+                        'pagination' => [
+                            'current_page' => 1,
+                            'per_page' => 20,
+                            'total_items' => 0,
+                            'total_pages' => 0,
+                        ]
+                    ]);
+                }
+            } else {
+                // Unidade não encontrada ou sem serviços
+                return $this->respondSuccess([
+                    'items' => [],
+                    'pagination' => [
+                        'current_page' => 1,
+                        'per_page' => 20,
+                        'total_items' => 0,
+                        'total_pages' => 0,
+                    ]
+                ]);
+            }
         }
         
         if ($onlyActive) {

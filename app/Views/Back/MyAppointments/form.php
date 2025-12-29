@@ -320,8 +320,11 @@ $(document).ready(function() {
             data: { unit_id: unitId },
             success: function(response) {
                 let html = '';
-                if (response.data && response.data.length > 0) {
-                    response.data.forEach(function(service) {
+                // A API retorna { success: true, data: { items: [...] } }
+                let services = response.data?.items || response.data || [];
+                
+                if (services.length > 0) {
+                    services.forEach(function(service) {
                         html += `
                             <div class="col-md-4 mb-3">
                                 <div class="card service-card h-100" data-service-id="${service.id}" data-duration="${service.duration || 30}">
@@ -343,8 +346,9 @@ $(document).ready(function() {
                 }
                 $('#services-container').html(html);
             },
-            error: function() {
-                $('#services-container').html('<div class="col-12 text-center py-5"><p class="text-danger">Erro ao carregar serviços.</p></div>');
+            error: function(xhr, status, error) {
+                console.error('Erro ao carregar serviços:', status, error, xhr.responseText);
+                $('#services-container').html('<div class="col-12 text-center py-5"><p class="text-danger">Erro ao carregar serviços. Tente novamente.</p></div>');
             }
         });
     }
@@ -363,8 +367,11 @@ $(document).ready(function() {
             data: { unit_id: unitId, service_id: serviceId },
             success: function(response) {
                 let html = '';
-                if (response.data && response.data.length > 0) {
-                    response.data.forEach(function(prof) {
+                // A API retorna { success: true, data: { items: [...] } }
+                let professionals = response.data?.items || response.data || [];
+                
+                if (professionals.length > 0) {
+                    professionals.forEach(function(prof) {
                         html += `
                             <div class="col-md-4 mb-3">
                                 <div class="card professional-card h-100" data-professional-id="${prof.id}">
@@ -383,8 +390,9 @@ $(document).ready(function() {
                 }
                 $('#professionals-container').html(html);
             },
-            error: function() {
-                $('#professionals-container').html('<div class="col-12 text-center py-5"><p class="text-danger">Erro ao carregar profissionais.</p></div>');
+            error: function(xhr, status, error) {
+                console.error('Erro ao carregar profissionais:', status, error, xhr.responseText);
+                $('#professionals-container').html('<div class="col-12 text-center py-5"><p class="text-danger">Erro ao carregar profissionais. Tente novamente.</p></div>');
             }
         });
     }
