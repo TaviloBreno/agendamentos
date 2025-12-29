@@ -111,7 +111,7 @@
                 </h6>
             </div>
             <div class="card-body">
-                <?php $services = $professional->getServices(); ?>
+                <?php $services = $professional->loadServices(); ?>
                 <?php if (empty($services)): ?>
                     <div class="text-center text-muted py-4">
                         <i class="fas fa-info-circle fa-2x mb-3"></i>

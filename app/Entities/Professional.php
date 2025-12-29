@@ -191,19 +191,42 @@ class Professional extends MyBaseEntity
     }
 
     /**
-     * Retorna os serviços que o profissional realiza
+     * Retorna os IDs dos serviços do profissional
+     * 
+     * @return array
+     */
+    public function getServiceIds(): array
+    {
+        $services = $this->attributes['services'] ?? null;
+        
+        if (empty($services)) {
+            return [];
+        }
+        
+        // Se já é array, retorna direto
+        if (is_array($services)) {
+            return $services;
+        }
+        
+        // Se é string JSON, decodifica
+        $decoded = json_decode($services, true);
+        return is_array($decoded) ? $decoded : [];
+    }
+
+    /**
+     * Retorna os serviços que o profissional realiza (entities)
      * 
      * @return array Array de Service entities
      */
-    public function getServices(): array
+    public function loadServices(): array
     {
-        $serviceIds = $this->services;
+        $serviceIds = $this->getServiceIds();
         
         if (empty($serviceIds)) {
             return [];
         }
         
-        return model(\App\Models\ServiceModel::class)->findByIds($serviceIds);
+        return model(\App\Models\ServiceModel::class)->whereIn('id', $serviceIds)->findAll();
     }
 
     /**
@@ -213,7 +236,7 @@ class Professional extends MyBaseEntity
      */
     public function servicesCount(): int
     {
-        return count($this->services ?? []);
+        return count($this->getServiceIds());
     }
 
     /**
@@ -224,6 +247,6 @@ class Professional extends MyBaseEntity
      */
     public function hasService(int $serviceId): bool
     {
-        return in_array($serviceId, $this->services ?? []);
+        return in_array($serviceId, $this->getServiceIds());
     }
 }
