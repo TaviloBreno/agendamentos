@@ -64,9 +64,11 @@
     <h1 class="h3 mb-0 text-gray-800">
         <?= isset($pageHeading) ? esc($pageHeading) : 'Dashboard' ?>
     </h1>
+    <?php if (canAccess('reports')): ?>
     <a href="<?= route_to('super.reports') ?>" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
         <i class="fas fa-chart-bar fa-sm text-white-50"></i> Gerar Relatório
     </a>
+    <?php endif; ?>
 </div>
 
 <!-- Cards de Estatísticas -->

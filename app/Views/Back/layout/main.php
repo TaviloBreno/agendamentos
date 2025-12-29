@@ -117,6 +117,7 @@
                 Cadastros
             </div>
 
+            <?php if (canAccess('units')): ?>
             <!-- Nav Item - Unidades -->
             <li class="nav-item <?= url_is('super/units*') ? 'active' : '' ?>">
                 <a class="nav-link" href="<?= route_to('super.units') ?>">
@@ -124,7 +125,9 @@
                     <span>Unidades</span>
                 </a>
             </li>
+            <?php endif; ?>
 
+            <?php if (canAccess('services')): ?>
             <!-- Nav Item - Serviços -->
             <li class="nav-item <?= url_is('super/services*') ? 'active' : '' ?>">
                 <a class="nav-link" href="<?= route_to('super.services') ?>">
@@ -132,7 +135,9 @@
                     <span>Serviços</span>
                 </a>
             </li>
+            <?php endif; ?>
 
+            <?php if (canAccess('professionals')): ?>
             <!-- Nav Item - Profissionais -->
             <li class="nav-item <?= url_is('super/professionals*') ? 'active' : '' ?>">
                 <a class="nav-link" href="<?= route_to('super.professionals') ?>">
@@ -140,6 +145,7 @@
                     <span>Profissionais</span>
                 </a>
             </li>
+            <?php endif; ?>
 
             <!-- Divider -->
             <hr class="sidebar-divider">
@@ -149,6 +155,7 @@
                 Agendamentos
             </div>
 
+            <?php if (canAccess('appointments')): ?>
             <!-- Nav Item - Agenda -->
             <li class="nav-item <?= url_is('super/appointments*') ? 'active' : '' ?>">
                 <a class="nav-link" href="<?= route_to('super.appointments') ?>">
@@ -156,7 +163,9 @@
                     <span>Agenda</span>
                 </a>
             </li>
+            <?php endif; ?>
 
+            <?php if (canAccess('clients')): ?>
             <!-- Nav Item - Clientes -->
             <li class="nav-item <?= url_is('super/clients*') ? 'active' : '' ?>">
                 <a class="nav-link" href="<?= route_to('super.clients') ?>">
@@ -164,6 +173,7 @@
                     <span>Clientes</span>
                 </a>
             </li>
+            <?php endif; ?>
 
             <!-- Divider -->
             <hr class="sidebar-divider">
@@ -189,6 +199,7 @@
                 </a>
             </li>
 
+            <?php if (canAccess('whatsapp')): ?>
             <!-- Nav Item - WhatsApp -->
             <li class="nav-item <?= url_is('super/whatsapp*') ? 'active' : '' ?>">
                 <a class="nav-link" href="<?= route_to('super.whatsapp') ?>">
@@ -196,7 +207,9 @@
                     <span>WhatsApp</span>
                 </a>
             </li>
+            <?php endif; ?>
 
+            <?php if (canAccess('reports')): ?>
             <!-- Nav Item - Relatórios -->
             <li class="nav-item <?= url_is('super/reports*') ? 'active' : '' ?>">
                 <a class="nav-link" href="<?= route_to('super.reports') ?>">
@@ -204,7 +217,9 @@
                     <span>Relatórios</span>
                 </a>
             </li>
+            <?php endif; ?>
 
+            <?php if (canAccess('users') || canAccess('tenants')): ?>
             <!-- Divider -->
             <hr class="sidebar-divider">
 
@@ -213,6 +228,7 @@
                 Sistema
             </div>
 
+            <?php if (canAccess('users')): ?>
             <!-- Nav Item - Usuários -->
             <li class="nav-item <?= url_is('super/users*') ? 'active' : '' ?>">
                 <a class="nav-link" href="<?= route_to('super.users') ?>">
@@ -220,6 +236,18 @@
                     <span>Usuários</span>
                 </a>
             </li>
+            <?php endif; ?>
+
+            <?php if (canAccess('tenants')): ?>
+            <!-- Nav Item - Empresas/Tenants -->
+            <li class="nav-item <?= url_is('super/tenants*') ? 'active' : '' ?>">
+                <a class="nav-link" href="<?= route_to('super.tenants') ?>">
+                    <i class="fas fa-fw fa-building"></i>
+                    <span>Empresas</span>
+                </a>
+            </li>
+            <?php endif; ?>
+            <?php endif; ?>
 
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
