@@ -102,30 +102,12 @@ class Filters extends BaseFilters
      * - Todo formulário DEVE incluir <?= csrf_field() ?>
      * - Requisições AJAX devem enviar o token no header ou body
      * - Sem o token, a requisição será bloqueada com erro 403
+     * 
+     * EXCEÇÕES:
+     * - Rotas de API são excluídas (autenticação via token)
+     * - Rotas de webhook são excluídas (callbacks externos)
      */
-    public array $methods = [
-        'POST'   => ['csrf'],
-        'PUT'    => ['csrf'],
-        'PATCH'  => ['csrf'],
-        'DELETE' => ['csrf'],
-    ];
-
-    /**
-     * List of filter aliases that works on a
-     * particular HTTP method (GET, POST, etc.).
-     *
-     * Example:
-     * 'POST' => ['foo', 'bar']
-     *
-     * If you use this, you should disable auto-routing because auto-routing
-     * permits any HTTP method to access a controller. Accessing the controller
-     * with a method you don't expect could bypass the filter.
-     *
-     * NOTA: $methods foi movido para cima junto com a documentação CSRF.
-     *
-     * @var array<string, list<string>>
-     */
-    // public array $methods = []; // Definido acima com CSRF
+    public array $methods = [];
 
     /**
      * List of filter aliases that should run on any
@@ -136,5 +118,21 @@ class Filters extends BaseFilters
      *
      * @var array<string, array<string, list<string>>>
      */
-    public array $filters = [];
+    public array $filters = [
+        'csrf' => [
+            'before' => [
+                'admin/*',
+                'super/*',
+                'login',
+                'register',
+                'booking/*',
+            ],
+            'except' => [
+                'api/*',
+                'webhook/*',
+                'admin/notifications/*',
+                'admin/messages/*',
+            ],
+        ],
+    ];
 }

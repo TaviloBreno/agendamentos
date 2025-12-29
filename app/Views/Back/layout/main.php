@@ -9,6 +9,7 @@
     <meta name="description" content="<?= isset($description) ? esc($description) : 'Sistema de Agendamentos' ?>">
     <meta name="author" content="<?= isset($author) ? esc($author) : '' ?>">
     <meta name="color-scheme" content="light dark">
+    <meta name="<?= csrf_token() ?>" content="<?= csrf_hash() ?>">
 
     <!-- Título dinâmico com fallback seguro -->
     <title><?= isset($title) ? esc($title) : 'Admin | Sistema' ?></title>
@@ -16,12 +17,23 @@
     <!-- Prevenir flash de tema incorreto -->
     <script>
         (function() {
-            var theme = localStorage.getItem('theme') || 'auto';
-            var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            var theme = localStorage.getItem('theme');
             
-            if (theme === 'dark' || (theme === 'auto' && prefersDark)) {
-                document.documentElement.classList.add('dark-theme');
+            // Se não houver tema salvo, usa 'auto' como padrão
+            if (!theme) {
+                theme = 'auto';
+                localStorage.setItem('theme', 'auto');
             }
+            
+            var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            var shouldBeDark = (theme === 'dark') || (theme === 'auto' && prefersDark);
+            
+            if (shouldBeDark) {
+                document.documentElement.classList.add('dark-theme');
+            } else {
+                document.documentElement.classList.remove('dark-theme');
+            }
+            
             document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>
@@ -507,6 +519,35 @@
             $('.money-mask').mask('#.##0,00', {reverse: true});
 
             // =========================================================================
+            // CONFIGURAÇÃO GLOBAL AJAX - CSRF TOKEN
+            // =========================================================================
+            var csrfToken = '<?= csrf_hash() ?>';
+            var csrfTokenName = '<?= csrf_token() ?>';
+            
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            // Atualiza o token CSRF após cada requisição AJAX (se o servidor regenerar)
+            $(document).ajaxComplete(function(event, xhr) {
+                var newToken = xhr.getResponseHeader('X-CSRF-TOKEN');
+                if (newToken) {
+                    csrfToken = newToken;
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    // Atualiza a meta tag também
+                    $('meta[name="' + csrfTokenName + '"]').attr('content', csrfToken);
+                }
+            });
+
+            // =========================================================================
             // NOTIFICAÇÕES DROPDOWN
             // =========================================================================
             function loadNotifications() {
@@ -619,18 +660,19 @@
                 // Adiciona classe de transição suave
                 html.classList.add('theme-transition');
                 
+                // Remove a classe dark-theme primeiro
+                html.classList.remove('dark-theme');
+                
+                // Aplica o tema correto
                 if (theme === 'auto') {
                     var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                     if (prefersDark) {
                         html.classList.add('dark-theme');
-                    } else {
-                        html.classList.remove('dark-theme');
                     }
                 } else if (theme === 'dark') {
                     html.classList.add('dark-theme');
-                } else {
-                    html.classList.remove('dark-theme');
                 }
+                // Para 'light', a classe já foi removida acima
                 
                 html.setAttribute('data-theme', theme);
                 localStorage.setItem('theme', theme);
@@ -643,6 +685,8 @@
                 // Atualiza ícones
                 updateThemeDropdown(theme);
                 updateThemeIcon();
+                
+                console.log('Theme applied:', theme, 'Dark mode:', html.classList.contains('dark-theme'));
             }
             
             // Função para atualizar o dropdown do tema
@@ -656,15 +700,6 @@
                 e.preventDefault();
                 var theme = $(this).data('theme');
                 applyTheme(theme);
-                
-                // Salva no servidor se o usuário estiver logado
-                <?php if (session()->get('user_id')): ?>
-                $.post('<?= base_url('admin/profile/settings') ?>', {
-                    theme: theme,
-                    _ajax: true,
-                    <?= csrf_token() ?>: '<?= csrf_hash() ?>'
-                });
-                <?php endif; ?>
             });
             
             // Escuta mudanças na preferência do sistema
@@ -677,8 +712,16 @@
             
             // Inicializa o dropdown e ícone
             var savedTheme = localStorage.getItem('theme') || 'auto';
+            console.log('Tema salvo:', savedTheme);
+            console.log('Classe dark-theme presente:', document.documentElement.classList.contains('dark-theme'));
             updateThemeDropdown(savedTheme);
             updateThemeIcon();
+            
+            // Função global para resetar tema (pode ser chamada do console para debug)
+            window.resetTheme = function() {
+                localStorage.removeItem('theme');
+                location.reload();
+            };
         });
     </script>
 
