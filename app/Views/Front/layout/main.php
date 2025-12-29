@@ -421,7 +421,7 @@
                                 </a>
                                 <hr class="navbar-divider">
                                 <?php endif; ?>
-                                <a class="navbar-item" href="<?= route_to('auth.logout') ?>">
+                                <a class="navbar-item" href="<?= route_to('logout') ?>">
                                     <i class="fas fa-sign-out-alt mr-2"></i> Sair
                                 </a>
                             </div>
