@@ -8,6 +8,7 @@
 [![CodeIgniter](https://img.shields.io/badge/CodeIgniter-4.6.4-EF4223?style=for-the-badge&logo=codeigniter&logoColor=white)](https://codeigniter.com)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://mysql.com)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-4.6-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com)
+[![Bulma](https://img.shields.io/badge/Bulma-0.9.4-00D1B2?style=for-the-badge&logo=bulma&logoColor=white)](https://bulma.io)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 [Funcionalidades](#-funcionalidades) •
@@ -51,7 +52,18 @@ Sistema de agendamentos **full-stack** desenvolvido com boas práticas de engenh
 - [x] Campos únicos (email, telefone, nome)
 - [x] Soft delete para auditoria
 
-### 📊 Interface Administrativa
+### � Área Pública de Agendamentos
+- [x] Home page com listagem de unidades
+- [x] Wizard de agendamento em 6 passos
+- [x] Seleção de unidade, serviço e profissional
+- [x] Calendário interativo para escolha de data
+- [x] Seleção de horários disponíveis em tempo real
+- [x] Confirmação e criação de agendamentos
+- [x] Página "Meus Agendamentos" para usuário logado
+- [x] Cancelamento de agendamentos
+- [x] Interface responsiva com Bulma CSS
+
+### �📊 Interface Administrativa
 - [x] Dashboard com métricas
 - [x] DataTables com paginação e busca
 - [x] Formulários com Bootstrap 4
@@ -223,11 +235,12 @@ Validação em tempo real com feedback visual Bootstrap.
 ### Frontend
 | Tecnologia | Versão | Descrição |
 |------------|--------|-----------|
-| Bootstrap | 4.6 | Framework CSS |
+| Bootstrap | 4.6 | Framework CSS (área administrativa) |
+| Bulma | 0.9.4 | Framework CSS (área pública) |
 | SB Admin 2 | 2.0 | Template administrativo |
 | jQuery | 3.6 | Biblioteca JavaScript |
 | DataTables | 1.11 | Plugin para tabelas |
-| Font Awesome | 5.15 | Ícones vetoriais |
+| Font Awesome | 6.5 | Ícones vetoriais |
 
 ### Ferramentas
 | Ferramenta | Descrição |
@@ -248,6 +261,15 @@ Validação em tempo real com feedback visual Bootstrap.
 - [x] Calendário interativo (FullCalendar)
 - [x] CRUD de Clientes
 - [x] CRUD de Usuários
+- [x] **Área Pública de Agendamentos**
+  - [x] Template com Bulma CSS
+  - [x] Wizard de agendamento (6 passos)
+  - [x] Seleção de unidade, serviço, profissional
+  - [x] Calendário interativo para escolha de data
+  - [x] Seleção de horários disponíveis
+  - [x] Confirmação e criação de agendamentos
+  - [x] Página "Meus Agendamentos"
+  - [x] Cancelamento de agendamentos
 - [ ] Notificações por email
 - [ ] API REST
 - [ ] Relatórios e dashboards
