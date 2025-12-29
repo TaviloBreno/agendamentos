@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4e73df">
+    <title>Offline - Sistema de Agendamentos</title>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            background: #f0f4ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .icon svg {
+            width: 60px;
+            height: 60px;
+            fill: #4e73df;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #4e73df;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #3a5bc7;
+            transform: translateY(-2px);
+        }
+        
+        .status {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #888;
+            font-size: 14px;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #f44336;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-dot.online {
+            background: #4caf50;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .tips {
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .tips h3 {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .tips ul {
+            list-style: none;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .tips li {
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .tips li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4e73df;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="none"/>
+                <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4s1.79-4 4-4h.71C7.37 7.69 9.48 6 12 6c3.04 0 5.5 2.46 5.5 5.5v.5H19c1.66 0 3 1.34 3 3s-1.34 3-3 3z"/>
+                <path d="M12 10.5l-1.5 1.5 1.5 1.5L10.5 15l-1.5-1.5-1.5 1.5-1.5-1.5 1.5-1.5-1.5-1.5L7.5 9l1.5 1.5L10.5 9z" transform="translate(4, 2)"/>
+            </svg>
+        </div>
+        
+        <h1>Você está offline</h1>
+        
+        <p>
+            Parece que você perdeu a conexão com a internet. 
+            Verifique sua conexão e tente novamente.
+        </p>
+        
+        <a href="/" class="btn" onclick="window.location.reload(); return false;">
+            Tentar Novamente
+        </a>
+        
+        <div class="status">
+            <div class="status-indicator">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">Offline</span>
+            </div>
+        </div>
+        
+        <div class="tips">
+            <h3>💡 Dicas:</h3>
+            <ul>
+                <li>Verifique sua conexão Wi-Fi ou dados móveis</li>
+                <li>Tente desativar e reativar o modo avião</li>
+                <li>Reinicie seu roteador se necessário</li>
+                <li>Agendamentos salvos offline serão sincronizados automaticamente</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Verificar status da conexão
+        function updateOnlineStatus() {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            
+            if (navigator.onLine) {
+                dot.classList.add('online');
+                text.textContent = 'Conectado - Recarregando...';
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                dot.classList.remove('online');
+                text.textContent = 'Offline';
+            }
+        }
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        
+        // Verificar periodicamente
+        setInterval(updateOnlineStatus, 3000);
+        
+        // Verificar na carga
+        updateOnlineStatus();
+    </script>
+</body>
+</html>
