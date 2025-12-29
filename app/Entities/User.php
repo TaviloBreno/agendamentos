@@ -208,4 +208,36 @@ class User extends MyBaseEntity
         $names = explode(' ', $this->attributes['name'] ?? '');
         return $names[0] ?? '';
     }
+
+    /**
+     * Retorna URL do avatar usando ui-avatars.com
+     * 
+     * @param int $size Tamanho do avatar em pixels
+     * @return string
+     */
+    public function avatarUrl(int $size = 64): string
+    {
+        $name = urlencode($this->attributes['name'] ?? 'User');
+        $colors = [
+            'super' => '4e73df',
+            'admin' => 'f6c23e',
+            'user'  => '1cc88a',
+        ];
+        $bg = $colors[$this->attributes['role'] ?? 'user'] ?? '858796';
+        return "https://ui-avatars.com/api/?name={$name}&size={$size}&background={$bg}&color=fff&bold=true";
+    }
+
+    /**
+     * Retorna badge de status com estilo
+     * 
+     * @return string HTML do badge
+     */
+    public function statusBadge(): string
+    {
+        if ($this->isActive()) {
+            return '<span class="badge badge-success"><i class="fas fa-check-circle mr-1"></i>Ativo</span>';
+        }
+        
+        return '<span class="badge badge-danger"><i class="fas fa-times-circle mr-1"></i>Inativo</span>';
+    }
 }
