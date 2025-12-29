@@ -1,6 +1,7 @@
 <?php
 
 use App\Controllers\AuthController;
+use App\Controllers\SchedulesController;
 use App\Controllers\Super\HomeController;
 use App\Controllers\Super\UnitsController;
 use CodeIgniter\Router\RouteCollection;
@@ -10,17 +11,50 @@ use CodeIgniter\Router\RouteCollection;
  */
 
 // =========================================================================
+// ROTAS PÚBLICAS (Área do Cliente)
+// =========================================================================
+/**
+ * Área pública para agendamento de horários
+ * 
+ * GET  /                    → Home pública com unidades
+ * GET  /agendar             → Wizard de agendamento
+ * GET  /meus-agendamentos   → Lista de agendamentos do usuário logado
+ */
+$routes->get('/', 'SchedulesController::home', ['as' => 'home']);
+$routes->get('agendar', 'SchedulesController::schedule', ['as' => 'schedule']);
+$routes->get('meus-agendamentos', 'SchedulesController::mySchedules', ['as' => 'my.schedules']);
+
+// =========================================================================
+// API PÚBLICA (AJAX para Wizard)
+// =========================================================================
+/**
+ * Endpoints JSON para o wizard de agendamento
+ */
+$routes->group('api', static function ($routes) {
+    // Dados para seleção no wizard
+    $routes->get('services', 'SchedulesController::getServices', ['as' => 'api.services']);
+    $routes->get('professionals', 'SchedulesController::getProfessionals', ['as' => 'api.professionals']);
+    $routes->get('months', 'SchedulesController::getMonths', ['as' => 'api.months']);
+    $routes->get('calendar', 'SchedulesController::getCalendar', ['as' => 'api.calendar']);
+    $routes->get('hours', 'SchedulesController::getAvailableHours', ['as' => 'api.hours']);
+    
+    // Criação e cancelamento de agendamentos
+    $routes->post('schedule', 'SchedulesController::createSchedule', ['as' => 'api.schedule.create']);
+    $routes->post('schedule/cancel/(:num)', 'SchedulesController::cancelSchedule/$1', ['as' => 'api.schedule.cancel']);
+});
+
+// =========================================================================
 // ROTAS DE AUTENTICAÇÃO
 // =========================================================================
 /**
  * Sistema de Login/Logout
  * 
- * GET  /        → Exibe formulário de login
- * POST /        → Processa tentativa de login
+ * GET  /login   → Exibe formulário de login
+ * POST /login   → Processa tentativa de login
  * GET  /logout  → Encerra sessão
  */
-$routes->get('/', 'AuthController::login', ['as' => 'login']);
-$routes->post('/', 'AuthController::attempt', ['as' => 'login.attempt']);
+$routes->get('login', 'AuthController::login', ['as' => 'login']);
+$routes->post('login', 'AuthController::attempt', ['as' => 'login.attempt']);
 $routes->get('logout', 'AuthController::logout', ['as' => 'logout']);
 
 // =========================================================================

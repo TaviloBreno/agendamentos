@@ -159,7 +159,7 @@ class AuthController extends BaseController
         $this->session->destroy();
 
         return redirect()
-            ->to('/')
+            ->to(route_to('login'))
             ->with('success', 'Você saiu do sistema.');
     }
 }
