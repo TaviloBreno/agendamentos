@@ -171,37 +171,44 @@
                     </div>
                 </div>
 
-                <!-- Horário Início -->
-                <div class="col-md-3">
+                <!-- Horário Disponível -->
+                <div class="col-md-4">
                     <div class="form-group">
-                        <label for="start_time">Horário Início <span class="text-danger">*</span></label>
-                        <input type="time" 
-                               class="form-control" 
-                               id="start_time" 
-                               name="start_time" 
-                               value="<?= old('start_time', '09:00') ?>"
-                               required>
+                        <label for="available_slot">Horário Disponível <span class="text-danger">*</span></label>
+                        <select class="form-control" id="available_slot" required>
+                            <option value="">Selecione profissional e data primeiro...</option>
+                        </select>
+                        <small class="text-muted" id="slot_info">Selecione um profissional e uma data para ver os horários disponíveis.</small>
+                        <div id="slot_loading" class="d-none">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Carregando horários...
+                        </div>
                     </div>
                 </div>
 
-                <!-- Horário Término -->
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="end_time">Horário Término <span class="text-danger">*</span></label>
-                        <input type="time" 
-                               class="form-control" 
-                               id="end_time" 
-                               name="end_time" 
-                               value="<?= old('end_time', '09:30') ?>"
-                               required>
-                    </div>
-                </div>
+                <!-- Campos hidden para os horários -->
+                <input type="hidden" id="start_time" name="start_time" value="<?= old('start_time') ?>">
+                <input type="hidden" id="end_time" name="end_time" value="<?= old('end_time') ?>">
 
                 <!-- Status -->
                 <div class="col-md-3">
                     <div class="form-group">
                         <label for="status">Status <span class="text-danger">*</span></label>
                         <?= $statusOptions ?>
+                    </div>
+                </div>
+
+                <!-- Duração do serviço -->
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label for="duration">Duração (min)</label>
+                        <input type="number" 
+                               class="form-control" 
+                               id="duration" 
+                               value="30"
+                               min="15"
+                               max="240"
+                               step="15">
                     </div>
                 </div>
             </div>
@@ -231,4 +238,112 @@
     </div>
 </div>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('js') ?>
+<script>
+$(document).ready(function() {
+    // Elementos do formulário
+    const professionalSelect = $('#professional_id');
+    const dateInput = $('#date');
+    const slotSelect = $('#available_slot');
+    const durationInput = $('#duration');
+    const startTimeInput = $('#start_time');
+    const endTimeInput = $('#end_time');
+    const slotInfo = $('#slot_info');
+    const slotLoading = $('#slot_loading');
+
+    // Função para carregar horários disponíveis
+    function loadAvailableSlots() {
+        const professionalId = professionalSelect.val();
+        const date = dateInput.val();
+        const duration = durationInput.val() || 30;
+
+        // Limpar seleção atual
+        slotSelect.html('<option value="">Selecione um horário...</option>');
+        startTimeInput.val('');
+        endTimeInput.val('');
+
+        if (!professionalId || !date) {
+            slotInfo.removeClass('d-none').text('Selecione um profissional e uma data para ver os horários disponíveis.');
+            return;
+        }
+
+        // Mostrar loading
+        slotLoading.removeClass('d-none');
+        slotInfo.addClass('d-none');
+
+        // Fazer requisição AJAX
+        $.ajax({
+            url: '<?= route_to('super.appointments.slots') ?>',
+            method: 'GET',
+            data: {
+                professional_id: professionalId,
+                date: date,
+                duration: duration
+            },
+            success: function(slots) {
+                slotLoading.addClass('d-none');
+                
+                if (slots.error) {
+                    slotInfo.removeClass('d-none').text(slots.error);
+                    return;
+                }
+
+                if (slots.length === 0) {
+                    slotSelect.html('<option value="">Nenhum horário disponível</option>');
+                    slotInfo.removeClass('d-none').text('Não há horários disponíveis para esta data. Tente outra data ou profissional.');
+                    return;
+                }
+
+                // Popular select com horários
+                let options = '<option value="">Selecione um horário...</option>';
+                slots.forEach(function(slot) {
+                    options += `<option value="${slot.start}|${slot.end}">${slot.label}</option>`;
+                });
+                slotSelect.html(options);
+                slotInfo.removeClass('d-none').text(`${slots.length} horário(s) disponível(eis)`);
+            },
+            error: function(xhr, status, error) {
+                slotLoading.addClass('d-none');
+                slotInfo.removeClass('d-none').text('Erro ao carregar horários. Tente novamente.');
+                console.error('Erro:', error);
+            }
+        });
+    }
+
+    // Quando selecionar um horário
+    slotSelect.on('change', function() {
+        const value = $(this).val();
+        if (value) {
+            const times = value.split('|');
+            startTimeInput.val(times[0]);
+            endTimeInput.val(times[1]);
+        } else {
+            startTimeInput.val('');
+            endTimeInput.val('');
+        }
+    });
+
+    // Eventos que disparam carregamento de horários
+    professionalSelect.on('change', loadAvailableSlots);
+    dateInput.on('change', loadAvailableSlots);
+    durationInput.on('change', loadAvailableSlots);
+
+    // Carregar horários iniciais se já tiver valores
+    if (professionalSelect.val() && dateInput.val()) {
+        loadAvailableSlots();
+    }
+
+    // Validação antes de enviar
+    $('form').on('submit', function(e) {
+        if (!startTimeInput.val() || !endTimeInput.val()) {
+            e.preventDefault();
+            alert('Por favor, selecione um horário disponível.');
+            slotSelect.focus();
+            return false;
+        }
+    });
+});
+</script>
 <?= $this->endSection() ?>

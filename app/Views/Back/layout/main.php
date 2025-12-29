@@ -189,7 +189,7 @@
             <?php endif; ?>
             <?php endif; ?>
 
-            <?php if (canAccess('whatsapp') || canAccess('reports')): ?>
+            <?php if (canAccess('whatsapp') || canAccess('reports') || canAccess('messages')): ?>
             <!-- Divider -->
             <hr class="sidebar-divider">
 
@@ -197,6 +197,17 @@
             <div class="sidebar-heading">
                 Relatórios & Comunicação
             </div>
+
+            <?php if (canAccess('messages')): ?>
+            <!-- Nav Item - Mensagens -->
+            <li class="nav-item <?= url_is('admin/messages*') ? 'active' : '' ?>">
+                <a class="nav-link" href="<?= route_to('admin.messages') ?>">
+                    <i class="fas fa-fw fa-envelope"></i>
+                    <span>Mensagens</span>
+                    <span class="badge badge-danger badge-counter sidebar-messages-count" style="display: none;">0</span>
+                </a>
+            </li>
+            <?php endif; ?>
 
             <?php if (canAccess('reports')): ?>
             <!-- Nav Item - Relatórios -->
@@ -664,6 +675,66 @@
 
             // Atualizar a cada 60 segundos
             setInterval(loadNotifications, 60000);
+
+            // =========================================================
+            // MENSAGENS DROPDOWN
+            // =========================================================
+            function loadMessages() {
+                $.get('<?= route_to('admin.messages.dropdown') ?>', function(response) {
+                    if (response.success) {
+                        updateMessageCounter(response.unreadCount);
+                        renderMessages(response.conversations);
+                    }
+                });
+            }
+
+            function updateMessageCounter(count) {
+                var $counter = $('.messages-count');
+                var $sidebarCounter = $('.sidebar-messages-count');
+                
+                if (count > 0) {
+                    $counter.text(count > 9 ? '9+' : count).show();
+                    $sidebarCounter.text(count > 9 ? '9+' : count).show();
+                } else {
+                    $counter.hide();
+                    $sidebarCounter.hide();
+                }
+            }
+
+            function renderMessages(conversations) {
+                var $container = $('.messages-container');
+                $container.empty();
+
+                if (!conversations || conversations.length === 0) {
+                    $container.html('<div class="dropdown-item text-center small text-gray-500">Nenhuma mensagem nova</div>');
+                    return;
+                }
+
+                conversations.forEach(function(c) {
+                    var html = '<a class="dropdown-item d-flex align-items-center message-item" href="<?= base_url('admin/messages/') ?>' + c.id + '">' +
+                        '<div class="dropdown-list-image mr-3">' +
+                        '<img class="rounded-circle" src="' + c.avatar + '" alt="">' +
+                        '<div class="status-indicator bg-success"></div>' +
+                        '</div>' +
+                        '<div class="font-weight-bold">' +
+                        '<div class="text-truncate">' + c.lastMessage + '</div>' +
+                        '<div class="small text-gray-500">' + c.senderName + ' · ' + c.timeAgo + '</div>' +
+                        '</div>' +
+                        '</a>';
+                    $container.append(html);
+                });
+            }
+
+            // Carregar mensagens ao clicar no dropdown
+            $('#messagesDropdown').on('click', function() {
+                loadMessages();
+            });
+
+            // Carregar contador inicial de mensagens
+            loadMessages();
+
+            // Atualizar mensagens a cada 60 segundos
+            setInterval(loadMessages, 60000);
 
             // =========================================================
             // TEMA ESCURO / CLARO / AUTOMÁTICO
