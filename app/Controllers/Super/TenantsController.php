@@ -65,7 +65,7 @@ class TenantsController extends BaseController
      */
     public function create()
     {
-        $data = $this->getPostData();
+        $data = $this->getTenantPostData();
 
         $id = $this->tenantModel->insert($data);
 
@@ -136,7 +136,7 @@ class TenantsController extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        $data = $this->getPostData();
+        $data = $this->getTenantPostData();
 
         $updated = $this->tenantModel->update($id, $data);
 
@@ -195,9 +195,9 @@ class TenantsController extends BaseController
     }
 
     /**
-     * Extrai dados do POST
+     * Extrai dados do POST para Tenant
      */
-    protected function getPostData(): array
+    protected function getTenantPostData(): array
     {
         return [
             'name' => $this->request->getPost('name'),
