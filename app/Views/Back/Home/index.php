@@ -178,14 +178,6 @@
                 </p>
                 <p>Este é o painel administrativo do sistema de agendamentos.</p>
                 <p class="mb-0">Utilize o menu lateral para navegar entre as funcionalidades.</p>
-                
-                <hr>
-                
-                <small class="text-muted">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    <strong>Dica:</strong> Use a Debug Toolbar (ícone do CI4 no canto inferior) 
-                    e vá na aba "Vars" para inspecionar os dados enviados pelo controller.
-                </small>
             </div>
         </div>
     </div>
@@ -237,47 +229,12 @@
 
 </div>
 
-<!-- Card Informativo sobre Debug -->
-<div class="row">
-    <div class="col-12">
-        <div class="card shadow mb-4 border-left-info">
-            <div class="card-body">
-                <h5 class="card-title text-info">
-                    <i class="fas fa-bug mr-2"></i>Debug Toolbar - Como usar
-                </h5>
-                <p class="mb-2">Para visualizar os dados enviados do Controller para esta View:</p>
-                <ol class="mb-0">
-                    <li>Certifique-se que <code>CI_ENVIRONMENT = 'development'</code> no arquivo <code>.env</code></li>
-                    <li>Acesse esta página no navegador</li>
-                    <li>Clique no ícone do CodeIgniter (canto inferior direito da tela)</li>
-                    <li>Navegue até a aba <strong>"Vars"</strong></li>
-                    <li>Expanda a seção <strong>"View Data"</strong> para ver todas as variáveis:</li>
-                </ol>
-                <ul class="mt-2 mb-0">
-                    <li><code>$title</code> = "<?= isset($title) ? esc($title) : 'não definido' ?>"</li>
-                    <li><code>$pageHeading</code> = "<?= isset($pageHeading) ? esc($pageHeading) : 'não definido' ?>"</li>
-                    <li><code>$userName</code> = "<?= isset($userName) ? esc($userName) : 'não definido' ?>"</li>
-                    <li><code>$totalAgendamentos</code> = <?= isset($totalAgendamentos) ? $totalAgendamentos : 'não definido' ?></li>
-                    <li><code>$ultimosAgendamentos</code> = [array com <?= isset($ultimosAgendamentos) ? count($ultimosAgendamentos) : 0 ?> itens]</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
 <?= $this->endSection() ?>
 
 <?= $this->section('js') ?>
 <!-- JavaScript específico desta página -->
 <script>
-    // Scripts específicos para a página inicial
     $(document).ready(function() {
-        console.log('=== DEBUG: Dados disponíveis na View ===');
-        console.log('Título da página: <?= isset($title) ? esc($title) : "não definido" ?>');
-        console.log('Usuário: <?= isset($userName) ? esc($userName) : "não definido" ?>');
-        console.log('Total Agendamentos: <?= isset($totalAgendamentos) ? $totalAgendamentos : 0 ?>');
-        console.log('=========================================');
-        
         // Animação suave nos cards ao carregar
         $('.stat-card').each(function(index) {
             $(this).delay(100 * index).animate({ opacity: 1 }, 300);
