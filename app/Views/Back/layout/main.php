@@ -128,12 +128,11 @@
                 </a>
             </li>
 
-            <!-- Nav Item - Clientes (Em breve) -->
-            <li class="nav-item">
-                <a class="nav-link disabled" href="#" style="opacity: 0.5;">
+            <!-- Nav Item - Clientes -->
+            <li class="nav-item <?= url_is('super/clients*') ? 'active' : '' ?>">
+                <a class="nav-link" href="<?= route_to('super.clients') ?>">
                     <i class="fas fa-fw fa-users"></i>
                     <span>Clientes</span>
-                    <span class="badge badge-secondary ml-2">Em breve</span>
                 </a>
             </li>
 
@@ -147,10 +146,9 @@
 
             <!-- Nav Item - Usuários -->
             <li class="nav-item <?= url_is('super/users*') ? 'active' : '' ?>">
-                <a class="nav-link disabled" href="#" style="opacity: 0.5;">
+                <a class="nav-link" href="<?= route_to('super.users') ?>">
                     <i class="fas fa-fw fa-user-cog"></i>
                     <span>Usuários</span>
-                    <span class="badge badge-secondary ml-2">Em breve</span>
                 </a>
             </li>
 

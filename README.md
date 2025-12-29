@@ -242,13 +242,17 @@ Validação em tempo real com feedback visual Bootstrap.
 
 - [x] Sistema de autenticação
 - [x] CRUD de Unidades
-- [ ] CRUD de Serviços
-- [ ] CRUD de Profissionais
-- [ ] Sistema de Agendamentos
-- [ ] Calendário interativo
+- [x] CRUD de Serviços
+- [x] CRUD de Profissionais
+- [x] Sistema de Agendamentos
+- [x] Calendário interativo (FullCalendar)
+- [x] CRUD de Clientes
+- [x] CRUD de Usuários
 - [ ] Notificações por email
 - [ ] API REST
 - [ ] Relatórios e dashboards
+- [ ] Multi-tenant (múltiplas empresas)
+- [ ] Integração com WhatsApp
 
 ---
 

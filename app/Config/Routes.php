@@ -170,6 +170,69 @@ $routes->group('super', ['namespace' => 'App\Controllers\Super', 'filter' => 'au
         // DELETE /super/appointments/(:num) → Remove agendamento
         $routes->delete('(:num)', 'AppointmentsController::delete/$1', ['as' => 'super.appointments.delete']);
     });
+    
+    // -----------------------------------------------------------------
+    // Rotas de Clientes (Clients)
+    // -----------------------------------------------------------------
+    $routes->group('clients', static function ($routes) {
+        
+        // GET /super/clients → Lista todos os clientes
+        $routes->get('/', 'ClientsController::index', ['as' => 'super.clients']);
+        
+        // GET /super/clients/search → Busca clientes (JSON)
+        $routes->get('search', 'ClientsController::search', ['as' => 'super.clients.search']);
+        
+        // GET /super/clients/new → Formulário de novo cliente
+        $routes->get('new', 'ClientsController::new', ['as' => 'super.clients.new']);
+        
+        // POST /super/clients → Processa criação
+        $routes->post('/', 'ClientsController::create', ['as' => 'super.clients.create']);
+        
+        // GET /super/clients/(:num) → Exibe detalhes de um cliente
+        $routes->get('(:num)', 'ClientsController::show/$1', ['as' => 'super.clients.show']);
+        
+        // GET /super/clients/(:num)/edit → Formulário de edição
+        $routes->get('(:num)/edit', 'ClientsController::edit/$1', ['as' => 'super.clients.edit']);
+        
+        // PUT /super/clients/(:num) → Processa atualização
+        $routes->put('(:num)', 'ClientsController::update/$1', ['as' => 'super.clients.update']);
+        
+        // PUT /super/clients/(:num)/action → Toggle ativar/desativar
+        $routes->put('(:num)/action', 'ClientsController::action/$1', ['as' => 'super.clients.action']);
+        
+        // DELETE /super/clients/(:num) → Remove cliente
+        $routes->delete('(:num)', 'ClientsController::delete/$1', ['as' => 'super.clients.delete']);
+    });
+    
+    // -----------------------------------------------------------------
+    // Rotas de Usuários (Users)
+    // -----------------------------------------------------------------
+    $routes->group('users', static function ($routes) {
+        
+        // GET /super/users → Lista todos os usuários
+        $routes->get('/', 'UsersController::index', ['as' => 'super.users']);
+        
+        // GET /super/users/new → Formulário de novo usuário
+        $routes->get('new', 'UsersController::new', ['as' => 'super.users.new']);
+        
+        // POST /super/users → Processa criação
+        $routes->post('/', 'UsersController::create', ['as' => 'super.users.create']);
+        
+        // GET /super/users/(:num) → Exibe detalhes de um usuário
+        $routes->get('(:num)', 'UsersController::show/$1', ['as' => 'super.users.show']);
+        
+        // GET /super/users/(:num)/edit → Formulário de edição
+        $routes->get('(:num)/edit', 'UsersController::edit/$1', ['as' => 'super.users.edit']);
+        
+        // PUT /super/users/(:num) → Processa atualização
+        $routes->put('(:num)', 'UsersController::update/$1', ['as' => 'super.users.update']);
+        
+        // PUT /super/users/(:num)/action → Toggle ativar/desativar
+        $routes->put('(:num)/action', 'UsersController::action/$1', ['as' => 'super.users.action']);
+        
+        // DELETE /super/users/(:num) → Remove usuário
+        $routes->delete('(:num)', 'UsersController::delete/$1', ['as' => 'super.users.delete']);
+    });
 });
 
 /**
