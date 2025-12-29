@@ -3,23 +3,27 @@
 namespace App\Controllers\Super;
 
 use App\Controllers\BaseController;
+use App\Libraries\UnitService;
 use App\Models\UnitModel;
-use App\Entities\Unit;
-use CodeIgniter\View\Table;
 
 /**
  * UnitsController - Controller para gerenciar Unidades
  * 
  * =========================================================================
- * TABLE CLASS DO CODEIGNITER
+ * PADRÃO SERVICE LAYER
  * =========================================================================
  * 
- * A Table Class permite gerar tabelas HTML no back-end, mantendo a view limpa.
+ * Este controller segue o princípio de "Controller Magro":
+ * - NÃO contém lógica de negócio
+ * - NÃO monta tabelas HTML
+ * - NÃO faz formatação de dados
  * 
- * Vantagens:
- * - View sem loops PHP (apenas <?= $unitsTable ?>)
- * - Template customizável (classes CSS, IDs)
- * - Separação clara entre lógica e apresentação
+ * Ele apenas ORQUESTRA:
+ * 1. Recebe a requisição
+ * 2. Chama a Service apropriada
+ * 3. Retorna a View com os dados
+ * 
+ * Toda a lógica de montagem de tabelas está em UnitService.
  * 
  * @package    App\Controllers\Super
  * @author     Sistema de Agendamentos
@@ -27,107 +31,47 @@ use CodeIgniter\View\Table;
 class UnitsController extends BaseController
 {
     /**
+     * Service responsável pela lógica de Unidades
+     * 
+     * Inicializada no construtor, usada em todos os métodos.
+     * 
+     * @var UnitService
+     */
+    private UnitService $unitService;
+
+    /**
+     * Construtor - Inicializa a Service
+     * 
+     * Usamos instanciação direta da Service.
+     * Alternativa: usar Factories ou injeção de dependência.
+     */
+    public function __construct()
+    {
+        $this->unitService = new UnitService();
+    }
+
+    // =========================================================================
+    // CRUD METHODS
+    // =========================================================================
+
+    /**
      * Lista todas as unidades
      * 
      * GET /super/units
+     * 
+     * Controller minimalista:
+     * - Chama a service para renderizar a tabela
+     * - Passa o HTML pronto para a view
+     * - View apenas exibe: <?= $units ?>
      * 
      * @return string
      */
     public function index(): string
     {
-        // Recupera todos os registros (retorna array de Entities)
-        $units = model(UnitModel::class)->findAll();
-        
-        // Instancia a Table Class
-        $table = new Table();
-        
-        /**
-         * TEMPLATE DA TABLE CLASS
-         * =======================
-         * Define as classes CSS e o id="dataTable" para o DataTables funcionar.
-         * 
-         * IMPORTANTE: O id="dataTable" é obrigatório!
-         * O arquivo datatables-demo.js busca esse id para aplicar o plugin.
-         * Se alterar, o DataTables não funcionará (tabela "crua").
-         * Use Ctrl+F5 para hard refresh se os assets não carregarem.
-         */
-        $template = [
-            'table_open' => '<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">',
-            'thead_open' => '<thead>',
-            'thead_close' => '</thead>',
-            'heading_row_start' => '<tr>',
-            'heading_row_end' => '</tr>',
-            'heading_cell_start' => '<th>',
-            'heading_cell_end' => '</th>',
-            'tbody_open' => '<tbody>',
-            'tbody_close' => '</tbody>',
-            'row_start' => '<tr>',
-            'row_end' => '</tr>',
-            'cell_start' => '<td>',
-            'cell_end' => '</td>',
-            'row_alt_start' => '<tr>',
-            'row_alt_end' => '</tr>',
-            'cell_alt_start' => '<td>',
-            'cell_alt_end' => '</td>',
-            'table_close' => '</table>',
-        ];
-        
-        $table->setTemplate($template);
-        
-        // Define os cabeçalhos da tabela
-        $table->setHeading('Nome', 'E-mail', 'Telefone', 'Início', 'Fim', 'Criado em', 'Ações');
-        
-        // Adiciona as linhas com dados das Entities
-        foreach ($units as $unit) {
-            // Formata created_at (Time → string legível)
-            $createdAt = $unit->created_at 
-                ? $unit->created_at->format('d/m/Y H:i') 
-                : '-';
-            
-            // Botões de ação
-            $actions = '
-                <a href="' . route_to('super.units.show', $unit->id) . '" class="btn btn-info btn-sm" title="Ver">
-                    <i class="fas fa-eye"></i>
-                </a>
-                <a href="' . route_to('super.units.edit', $unit->id) . '" class="btn btn-warning btn-sm" title="Editar">
-                    <i class="fas fa-edit"></i>
-                </a>
-                <button type="button" class="btn btn-danger btn-sm btn-delete" data-id="' . $unit->id . '" data-name="' . esc($unit->name) . '" title="Excluir">
-                    <i class="fas fa-trash"></i>
-                </button>
-            ';
-            
-            // Adiciona a linha
-            $table->addRow(
-                esc($unit->name),
-                esc($unit->email),
-                esc($unit->phone),
-                esc($unit->start_time),
-                esc($unit->end_time),
-                $createdAt,
-                $actions
-            );
-        }
-        
-        // Gera o HTML da tabela
-        $unitsTable = $table->generate();
-        
-        // Se não houver registros, exibe mensagem
-        if (empty($units)) {
-            $unitsTable = '<div class="text-center py-5">
-                <i class="fas fa-building fa-4x text-gray-300 mb-3"></i>
-                <h5 class="text-gray-600">Nenhuma unidade cadastrada</h5>
-                <p class="text-muted mb-3">Comece cadastrando a primeira unidade do sistema.</p>
-                <a href="' . route_to('super.units.new') . '" class="btn btn-primary">
-                    <i class="fas fa-plus mr-1"></i> Cadastrar Unidade
-                </a>
-            </div>';
-        }
-
         $data = [
-            'title'       => 'Unidades | Sistema de Agendamentos',
+            'title'       => 'Unidades',
             'pageHeading' => 'Gerenciar Unidades',
-            'unitsTable'  => $unitsTable,
+            'units'       => $this->unitService->renderUnits(),
         ];
 
         return view('Back/Units/index', $data);
@@ -143,7 +87,7 @@ class UnitsController extends BaseController
     public function new(): string
     {
         $data = [
-            'title'       => 'Nova Unidade | Sistema',
+            'title'       => 'Nova Unidade',
             'pageHeading' => 'Cadastrar Nova Unidade',
         ];
 
@@ -196,7 +140,7 @@ class UnitsController extends BaseController
      */
     public function show($id)
     {
-        $unit = model(UnitModel::class)->find($id);
+        $unit = $this->unitService->find($id);
 
         if ($unit === null) {
             return redirect()->to(route_to('super.units'))
@@ -222,7 +166,7 @@ class UnitsController extends BaseController
      */
     public function edit($id)
     {
-        $unit = model(UnitModel::class)->find($id);
+        $unit = $this->unitService->find($id);
 
         if ($unit === null) {
             return redirect()->to(route_to('super.units'))
@@ -230,7 +174,7 @@ class UnitsController extends BaseController
         }
 
         $data = [
-            'title'       => "Editar {$unit->name} | Sistema",
+            'title'       => "Editar {$unit->name}",
             'pageHeading' => "Editar: {$unit->name}",
             'unit'        => $unit,
         ];
