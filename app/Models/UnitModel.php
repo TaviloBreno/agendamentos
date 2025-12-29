@@ -247,6 +247,42 @@ class UnitModel extends Model
     // =========================================================================
 
     /**
+     * Busca um registro por ID ou lança 404
+     * 
+     * =========================================================================
+     * FINDORFAIL PATTERN
+     * =========================================================================
+     * 
+     * Este método é útil quando o registro DEVE existir.
+     * Evita verificações manuais de null no controller.
+     * 
+     * SEM findOrFail (código repetitivo):
+     *   $unit = $model->find($id);
+     *   if ($unit === null) {
+     *       throw PageNotFoundException::forPageNotFound();
+     *   }
+     * 
+     * COM findOrFail (limpo e direto):
+     *   $unit = $model->findOrFail($id);  // Lança 404 automaticamente
+     * 
+     * @param int|string $id ID do registro
+     * @return Unit Entity encontrada
+     * @throws \CodeIgniter\Exceptions\PageNotFoundException Se não existir
+     */
+    public function findOrFail(int|string $id): Unit
+    {
+        $record = $this->find($id);
+        
+        if ($record === null) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound(
+                "Registro não encontrado: {$id}"
+            );
+        }
+        
+        return $record;
+    }
+
+    /**
      * Busca apenas unidades ativas
      * 
      * @return array<Unit>

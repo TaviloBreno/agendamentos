@@ -73,13 +73,37 @@ class Filters extends BaseFilters
     public array $globals = [
         'before' => [
             // 'honeypot',
-            // 'csrf',
             // 'invalidchars',
         ],
         'after' => [
             // 'honeypot',
             // 'secureheaders',
         ],
+    ];
+
+    /**
+     * =========================================================================
+     * CSRF FILTER POR MÉTODO HTTP
+     * =========================================================================
+     * 
+     * O CSRF é aplicado apenas em métodos que modificam dados:
+     * - POST   → Criação de recursos
+     * - PUT    → Atualização completa
+     * - PATCH  → Atualização parcial
+     * - DELETE → Remoção de recursos
+     * 
+     * GET não precisa de CSRF pois não deve modificar dados.
+     * 
+     * IMPORTANTE:
+     * - Todo formulário DEVE incluir <?= csrf_field() ?>
+     * - Requisições AJAX devem enviar o token no header ou body
+     * - Sem o token, a requisição será bloqueada com erro 403
+     */
+    public array $methods = [
+        'POST'   => ['csrf'],
+        'PUT'    => ['csrf'],
+        'PATCH'  => ['csrf'],
+        'DELETE' => ['csrf'],
     ];
 
     /**
@@ -93,9 +117,11 @@ class Filters extends BaseFilters
      * permits any HTTP method to access a controller. Accessing the controller
      * with a method you don't expect could bypass the filter.
      *
+     * NOTA: $methods foi movido para cima junto com a documentação CSRF.
+     *
      * @var array<string, list<string>>
      */
-    public array $methods = [];
+    // public array $methods = []; // Definido acima com CSRF
 
     /**
      * List of filter aliases that should run on any

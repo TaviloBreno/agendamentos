@@ -33,21 +33,35 @@ class UnitsController extends BaseController
     /**
      * Service responsável pela lógica de Unidades
      * 
-     * Inicializada no construtor, usada em todos os métodos.
+     * Usada para renderização de tabelas e lógica de negócio.
      * 
      * @var UnitService
      */
     private UnitService $unitService;
 
     /**
-     * Construtor - Inicializa a Service
+     * Model para operações de banco de dados
      * 
-     * Usamos instanciação direta da Service.
-     * Alternativa: usar Factories ou injeção de dependência.
+     * Usado para CRUD direto quando não há lógica complexa.
+     * 
+     * @var UnitModel
+     */
+    private UnitModel $unitModel;
+
+    /**
+     * Construtor - Inicializa Service e Model
+     * 
+     * =========================================================================
+     * INJEÇÃO DE DEPENDÊNCIAS
+     * =========================================================================
+     * 
+     * - UnitService: instanciação direta (classe própria)
+     * - UnitModel: via helper model() (reutiliza instância)
      */
     public function __construct()
     {
         $this->unitService = new UnitService();
+        $this->unitModel   = model(UnitModel::class);
     }
 
     // =========================================================================
@@ -133,19 +147,20 @@ class UnitsController extends BaseController
     /**
      * Exibe detalhes de uma unidade
      * 
+    /**
+     * Exibe detalhes de uma unidade
+     * 
      * GET /super/units/(:num)
      * 
-     * @param int|string $id
-     * @return string|\CodeIgniter\HTTP\RedirectResponse
+     * Usa findOrFail() que lança 404 automaticamente se não existir.
+     * 
+     * @param int $id ID da unidade
+     * @return string
      */
-    public function show($id)
+    public function show(int $id): string
     {
-        $unit = $this->unitService->find($id);
-
-        if ($unit === null) {
-            return redirect()->to(route_to('super.units'))
-                           ->with('error', 'Unidade não encontrada.');
-        }
+        // findOrFail() lança PageNotFoundException se não encontrar
+        $unit = $this->unitModel->findOrFail($id);
 
         $data = [
             'title'       => "{$unit->name} | Unidades",
@@ -161,25 +176,31 @@ class UnitsController extends BaseController
      * 
      * GET /super/units/(:num)/edit
      * 
-     * @param int|string $id
-     * @return string|\CodeIgniter\HTTP\RedirectResponse
+     * =========================================================================
+     * FLUXO DO MÉTODO
+     * =========================================================================
+     * 
+     * 1. Busca a unidade via findOrFail() (404 automático se não existir)
+     * 2. Monta array $data com título e entity
+     * 3. Renderiza view Back/Units/edit.php
+     * 
+     * A view edit.php exibe o formulário preenchido com dados da $unit.
+     * 
+     * @param int $id ID da unidade
+     * @return string HTML da view
      */
-    public function edit($id)
+    public function edit(int $id): string
     {
-        $unit = $this->unitService->find($id);
-
-        if ($unit === null) {
-            return redirect()->to(route_to('super.units'))
-                           ->with('error', 'Unidade não encontrada.');
-        }
+        // findOrFail() lança PageNotFoundException se não encontrar
+        $unit = $this->unitModel->findOrFail($id);
 
         $data = [
-            'title'       => "Editar {$unit->name}",
+            'title'       => "Editar Unidade",
             'pageHeading' => "Editar: {$unit->name}",
             'unit'        => $unit,
         ];
 
-        return view('Back/Units/form', $data);
+        return view('Back/Units/edit', $data);
     }
 
     /**
@@ -187,18 +208,15 @@ class UnitsController extends BaseController
      * 
      * PUT /super/units/(:num)
      * 
-     * @param int|string $id
+     * Requer token CSRF válido (configurado em Config/Filters.php).
+     * 
+     * @param int $id ID da unidade
      * @return \CodeIgniter\HTTP\RedirectResponse
      */
-    public function update($id)
+    public function update(int $id)
     {
-        $model = model(UnitModel::class);
-        $unit  = $model->find($id);
-
-        if ($unit === null) {
-            return redirect()->to(route_to('super.units'))
-                           ->with('error', 'Unidade não encontrada.');
-        }
+        // findOrFail() lança 404 se não existir
+        $unit = $this->unitModel->findOrFail($id);
 
         $data = [
             'name'         => $this->request->getPost('name'),
@@ -213,12 +231,12 @@ class UnitsController extends BaseController
             'active'       => $this->request->getPost('active') ?? 0,
         ];
 
-        $updated = $model->update($id, $data);
+        $updated = $this->unitModel->update($id, $data);
 
         if ($updated === false) {
             return redirect()->back()
                            ->withInput()
-                           ->with('errors', $model->errors());
+                           ->with('errors', $this->unitModel->errors());
         }
 
         return redirect()->to(route_to('super.units.show', $id))
@@ -230,20 +248,17 @@ class UnitsController extends BaseController
      * 
      * DELETE /super/units/(:num)
      * 
-     * @param int|string $id
+     * Requer token CSRF válido.
+     * 
+     * @param int $id ID da unidade
      * @return \CodeIgniter\HTTP\RedirectResponse
      */
-    public function delete($id)
+    public function delete(int $id)
     {
-        $model = model(UnitModel::class);
-        $unit  = $model->find($id);
+        // findOrFail() lança 404 se não existir
+        $unit = $this->unitModel->findOrFail($id);
 
-        if ($unit === null) {
-            return redirect()->to(route_to('super.units'))
-                           ->with('error', 'Unidade não encontrada.');
-        }
-
-        $model->delete($id);
+        $this->unitModel->delete($id);
 
         return redirect()->to(route_to('super.units'))
                        ->with('success', "Unidade '{$unit->name}' removida com sucesso!");
