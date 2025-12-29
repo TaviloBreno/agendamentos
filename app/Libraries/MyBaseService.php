@@ -45,6 +45,19 @@ use CodeIgniter\View\Table as HTMLTable;
 class MyBaseService
 {
     /**
+     * Mensagem padrão para listas vazias
+     * 
+     * Constante reutilizável por todas as services filhas.
+     * Uso: return self::TXT_NO_DATA;
+     * 
+     * @var string
+     */
+    protected const TXT_NO_DATA = '<div class="alert alert-info text-center">
+        <i class="fas fa-info-circle mr-2"></i>
+        Não há dados para serem exibidos.
+    </div>';
+
+    /**
      * Instância da Table Class para geração de tabelas HTML
      * 
      * Usando alias HTMLTable para evitar confusão com tabelas do banco.

@@ -105,15 +105,18 @@ class UnitService extends MyBaseService
          * 
          * setHeading() aceita múltiplos argumentos (um por coluna)
          * ou um array. Aqui usamos argumentos para legibilidade.
+         * 
+         * IMPORTANTE: A coluna "Ações" vem PRIMEIRO para facilitar
+         * o acesso rápido aos botões de ação em cada linha.
          */
         $this->htmlTable->setHeading(
+            'Ações',
             'Nome',
             'E-mail',
             'Telefone',
             'Início',
             'Fim',
-            'Criado em',
-            'Ações'
+            'Criado em'
         );
         
         /**
@@ -125,13 +128,13 @@ class UnitService extends MyBaseService
          */
         foreach ($units as $unit) {
             $this->htmlTable->addRow(
+                $this->renderBtnActions($unit),
                 esc($unit->name),
                 esc($unit->email),
                 esc($unit->phone),
                 esc($unit->start_time),
                 esc($unit->end_time),
-                $this->formatDate($unit->created_at),
-                $this->renderActionButtons($unit)
+                $this->formatDate($unit->created_at)
             );
         }
         
@@ -140,35 +143,115 @@ class UnitService extends MyBaseService
     }
 
     /**
-     * Renderiza os botões de ação para uma unidade
+     * Renderiza dropdown de ações para uma unidade
      * 
-     * Gera HTML dos botões Ver, Editar e Excluir.
-     * Usa route_to() para URLs nomeadas (manutenção facilitada).
+     * =========================================================================
+     * DROPDOWN BOOTSTRAP 4 GERADO NO BACK-END
+     * =========================================================================
+     * 
+     * Centraliza a construção do HTML de ações na Service.
+     * Usa o helper anchor() do CodeIgniter para gerar links.
+     * 
+     * ESTRUTURA DO DROPDOWN:
+     * ┌─────────────────────────────────────┐
+     * │ [Ações ▼]                           │
+     * │  ├─ 👁️ Visualizar                   │
+     * │  ├─ ✏️ Editar                       │
+     * │  ├─ ───────────                     │
+     * │  ├─ ✅ Ativar/Desativar             │
+     * │  ├─ ───────────                     │
+     * │  └─ 🗑️ Excluir                      │
+     * └─────────────────────────────────────┘
+     * 
+     * @param Unit $unit Entity da unidade
+     * @return string HTML do dropdown completo
+     */
+    private function renderBtnActions(Unit $unit): string
+    {
+        // Carrega o helper HTML para usar anchor()
+        helper('html');
+        
+        // Monta os itens do menu usando anchor() + route_to()
+        $viewLink = anchor(
+            route_to('super.units.show', $unit->id),
+            '<i class="fas fa-eye fa-sm fa-fw mr-2 text-info"></i> Visualizar',
+            ['class' => 'dropdown-item']
+        );
+        
+        $editLink = anchor(
+            route_to('super.units.edit', $unit->id),
+            '<i class="fas fa-edit fa-sm fa-fw mr-2 text-warning"></i> Editar',
+            ['class' => 'dropdown-item']
+        );
+        
+        // Status toggle (Ativar/Desativar) - placeholder
+        $statusText = $unit->active 
+            ? '<i class="fas fa-ban fa-sm fa-fw mr-2 text-secondary"></i> Desativar'
+            : '<i class="fas fa-check fa-sm fa-fw mr-2 text-success"></i> Ativar';
+        $statusLink = '<a class="dropdown-item" href="#" onclick="alert(\'Em desenvolvimento\'); return false;">' . $statusText . '</a>';
+        
+        // Link de exclusão - placeholder com confirmação
+        $deleteLink = '<a class="dropdown-item text-danger" href="#" '
+            . 'onclick="if(confirm(\'Excluir ' . esc($unit->name, 'js') . '?\')) { alert(\'Em desenvolvimento\'); } return false;">'
+            . '<i class="fas fa-trash fa-sm fa-fw mr-2"></i> Excluir</a>';
+        
+        // Monta o dropdown completo
+        return '
+            <div class="dropdown">
+                <button class="btn btn-outline-primary btn-sm dropdown-toggle" 
+                        type="button" 
+                        id="dropdownActions' . $unit->id . '" 
+                        data-toggle="dropdown" 
+                        aria-haspopup="true" 
+                        aria-expanded="false">
+                    <i class="fas fa-cog"></i> Ações
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownActions' . $unit->id . '">
+                    ' . $viewLink . '
+                    ' . $editLink . '
+                    <div class="dropdown-divider"></div>
+                    ' . $statusLink . '
+                    <div class="dropdown-divider"></div>
+                    ' . $deleteLink . '
+                </div>
+            </div>
+        ';
+    }
+
+    /**
+     * Renderiza os botões de ação inline (versão compacta)
+     * 
+     * Alternativa ao dropdown para layouts que preferem botões lado a lado.
+     * Mantido para referência e possível uso futuro.
      * 
      * @param Unit $unit Entity da unidade
      * @return string HTML dos botões
+     * @deprecated Use renderBtnActions() para dropdown
      */
     protected function renderActionButtons(Unit $unit): string
     {
-        $viewUrl   = route_to('super.units.show', $unit->id);
-        $editUrl   = route_to('super.units.edit', $unit->id);
-        $unitName  = esc($unit->name);
+        helper('html');
         
-        return <<<HTML
-            <a href="{$viewUrl}" class="btn btn-info btn-sm" title="Ver detalhes">
-                <i class="fas fa-eye"></i>
-            </a>
-            <a href="{$editUrl}" class="btn btn-warning btn-sm" title="Editar">
-                <i class="fas fa-edit"></i>
-            </a>
-            <button type="button" 
-                    class="btn btn-danger btn-sm btn-delete" 
-                    data-id="{$unit->id}" 
-                    data-name="{$unitName}" 
-                    title="Excluir">
-                <i class="fas fa-trash"></i>
-            </button>
-        HTML;
+        $viewBtn = anchor(
+            route_to('super.units.show', $unit->id),
+            '<i class="fas fa-eye"></i>',
+            ['class' => 'btn btn-info btn-sm', 'title' => 'Ver detalhes']
+        );
+        
+        $editBtn = anchor(
+            route_to('super.units.edit', $unit->id),
+            '<i class="fas fa-edit"></i>',
+            ['class' => 'btn btn-warning btn-sm', 'title' => 'Editar']
+        );
+        
+        $deleteBtn = '<button type="button" '
+            . 'class="btn btn-danger btn-sm btn-delete" '
+            . 'data-id="' . $unit->id . '" '
+            . 'data-name="' . esc($unit->name) . '" '
+            . 'title="Excluir">'
+            . '<i class="fas fa-trash"></i></button>';
+        
+        return $viewBtn . ' ' . $editBtn . ' ' . $deleteBtn;
     }
 
     /**
