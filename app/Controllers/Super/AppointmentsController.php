@@ -154,6 +154,13 @@ class AppointmentsController extends BaseController
                            ->with('danger', 'Verifique os erros de validação.');
         }
 
+        // Enviar notificação de confirmação e agendar lembrete
+        $appointment = $this->appointmentModel->find($insertId);
+        if ($appointment && $appointment->client_phone) {
+            $this->appointmentService->sendConfirmationNotification($appointment);
+            $this->appointmentService->sendReminderNotification($appointment);
+        }
+
         return redirect()->to(route_to('super.appointments.show', $insertId))
                        ->with('success', 'Agendamento cadastrado com sucesso!');
     }
@@ -279,6 +286,16 @@ class AppointmentsController extends BaseController
         }
 
         $this->appointmentModel->updateStatus($id, $newStatus);
+
+        // Enviar notificação de mudança de status
+        $updatedAppointment = $this->appointmentModel->find($id);
+        if ($updatedAppointment && $updatedAppointment->client_phone) {
+            if ($newStatus === 'cancelled') {
+                $this->appointmentService->sendCancellationNotification($updatedAppointment);
+            } else {
+                $this->appointmentService->sendStatusChangeNotification($updatedAppointment, $newStatus);
+            }
+        }
 
         $statusLabels = [
             'scheduled'  => 'reagendado',

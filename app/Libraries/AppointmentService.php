@@ -3,6 +3,7 @@
 namespace App\Libraries;
 
 use App\Models\AppointmentModel;
+use App\Models\NotificationQueueModel;
 use App\Entities\Appointment;
 
 /**
@@ -16,11 +17,20 @@ use App\Entities\Appointment;
  * - Formatar dados para calendário
  * - Centralizar queries específicas
  * - Verificar disponibilidade
+ * - Enviar notificações via fila
  * 
  * @package    App\Libraries
  */
 class AppointmentService extends MyBaseService
 {
+    protected NotificationQueueModel $queueModel;
+    
+    public function __construct()
+    {
+        parent::__construct();
+        $this->queueModel = model(NotificationQueueModel::class);
+    }
+    
     /**
      * Renderiza a tabela de Agendamentos para listagem
      * 
@@ -154,12 +164,24 @@ class AppointmentService extends MyBaseService
     /**
      * Retorna dados para cards de estatísticas
      * 
+     * @param int|null $unitId Filtrar por unidade
      * @return array
      */
-    public function getStats(): array
+    public function getStats(?int $unitId = null): array
     {
         $model = new AppointmentModel();
+        
+        if ($unitId) {
+            $model = $model->where('unit_id', $unitId);
+        }
+        
         $todayCounts = $model->countByStatus(date('Y-m-d'));
+        
+        // Reset para pegar total geral
+        $model = new AppointmentModel();
+        if ($unitId) {
+            $model = $model->where('unit_id', $unitId);
+        }
         $totalCounts = $model->countByStatus();
         
         return [
@@ -199,5 +221,158 @@ class AppointmentService extends MyBaseService
         $html .= '</select>';
         
         return $html;
+    }
+    
+    // =========================================================================
+    // NOTIFICAÇÕES
+    // =========================================================================
+    
+    /**
+     * Agenda notificação de confirmação de agendamento
+     * 
+     * @param Appointment $appointment
+     */
+    public function sendConfirmationNotification(Appointment $appointment): void
+    {
+        if (!$appointment->client_phone) {
+            return;
+        }
+        
+        $message = $this->buildConfirmationMessage($appointment);
+        $this->queueModel->queueWhatsApp($appointment->client_phone, $message, [
+            'appointment_id' => $appointment->id,
+            'type' => 'confirmation',
+        ]);
+    }
+    
+    /**
+     * Agenda lembrete para 24h antes do agendamento
+     * 
+     * @param Appointment $appointment
+     */
+    public function sendReminderNotification(Appointment $appointment): void
+    {
+        if (!$appointment->client_phone) {
+            return;
+        }
+        
+        // Agendar para 24h antes
+        $appointmentDateTime = strtotime($appointment->date . ' ' . $appointment->start_time);
+        $reminderTime = date('Y-m-d H:i:s', $appointmentDateTime - (24 * 60 * 60));
+        
+        // Só agenda se ainda falta mais de 24h
+        if (strtotime($reminderTime) > time()) {
+            $message = $this->buildReminderMessage($appointment);
+            $this->queueModel->queueWhatsApp($appointment->client_phone, $message, [
+                'appointment_id' => $appointment->id,
+                'type' => 'reminder',
+            ], $reminderTime);
+        }
+    }
+    
+    /**
+     * Agenda notificação de cancelamento
+     * 
+     * @param Appointment $appointment
+     */
+    public function sendCancellationNotification(Appointment $appointment): void
+    {
+        if (!$appointment->client_phone) {
+            return;
+        }
+        
+        $message = $this->buildCancellationMessage($appointment);
+        $this->queueModel->queueWhatsApp($appointment->client_phone, $message, [
+            'appointment_id' => $appointment->id,
+            'type' => 'cancellation',
+        ]);
+    }
+    
+    /**
+     * Agenda notificação de mudança de status
+     * 
+     * @param Appointment $appointment
+     * @param string $newStatus
+     */
+    public function sendStatusChangeNotification(Appointment $appointment, string $newStatus): void
+    {
+        if (!$appointment->client_phone) {
+            return;
+        }
+        
+        $message = $this->buildStatusChangeMessage($appointment, $newStatus);
+        $this->queueModel->queueWhatsApp($appointment->client_phone, $message, [
+            'appointment_id' => $appointment->id,
+            'type' => 'status_change',
+            'new_status' => $newStatus,
+        ]);
+    }
+    
+    /**
+     * Monta mensagem de confirmação
+     */
+    protected function buildConfirmationMessage(Appointment $appointment): string
+    {
+        return "✅ *Agendamento Confirmado!*\n\n" .
+               "Olá, {$appointment->client_name}!\n\n" .
+               "Seu agendamento foi realizado com sucesso:\n\n" .
+               "📅 *Data:* {$appointment->dateFormatted()}\n" .
+               "⏰ *Horário:* {$appointment->timeRange()}\n" .
+               "👨‍⚕️ *Profissional:* {$appointment->professional_name}\n" .
+               "💼 *Serviço:* {$appointment->service_name}\n\n" .
+               "Em caso de dúvidas ou para cancelar, entre em contato conosco.\n\n" .
+               "Até logo! 😊";
+    }
+    
+    /**
+     * Monta mensagem de lembrete
+     */
+    protected function buildReminderMessage(Appointment $appointment): string
+    {
+        return "🔔 *Lembrete de Agendamento*\n\n" .
+               "Olá, {$appointment->client_name}!\n\n" .
+               "Lembramos que você tem um agendamento *amanhã*:\n\n" .
+               "📅 *Data:* {$appointment->dateFormatted()}\n" .
+               "⏰ *Horário:* {$appointment->timeRange()}\n" .
+               "👨‍⚕️ *Profissional:* {$appointment->professional_name}\n" .
+               "💼 *Serviço:* {$appointment->service_name}\n\n" .
+               "Não se esqueça! Contamos com sua presença. 😊";
+    }
+    
+    /**
+     * Monta mensagem de cancelamento
+     */
+    protected function buildCancellationMessage(Appointment $appointment): string
+    {
+        return "❌ *Agendamento Cancelado*\n\n" .
+               "Olá, {$appointment->client_name}!\n\n" .
+               "Seu agendamento foi cancelado:\n\n" .
+               "📅 *Data:* {$appointment->dateFormatted()}\n" .
+               "⏰ *Horário:* {$appointment->timeRange()}\n\n" .
+               "Se precisar reagendar, entre em contato conosco.\n\n" .
+               "Atenciosamente.";
+    }
+    
+    /**
+     * Monta mensagem de mudança de status
+     */
+    protected function buildStatusChangeMessage(Appointment $appointment, string $newStatus): string
+    {
+        $statusLabels = [
+            'confirmed' => 'Confirmado ✅',
+            'completed' => 'Concluído ✔️',
+            'cancelled' => 'Cancelado ❌',
+            'no_show'   => 'Não Compareceu 🚫',
+        ];
+        
+        $statusLabel = $statusLabels[$newStatus] ?? $newStatus;
+        
+        return "📝 *Atualização de Agendamento*\n\n" .
+               "Olá, {$appointment->client_name}!\n\n" .
+               "O status do seu agendamento foi atualizado:\n\n" .
+               "📅 *Data:* {$appointment->dateFormatted()}\n" .
+               "⏰ *Horário:* {$appointment->timeRange()}\n" .
+               "📊 *Novo Status:* {$statusLabel}\n\n" .
+               "Em caso de dúvidas, entre em contato conosco.";
     }
 }
