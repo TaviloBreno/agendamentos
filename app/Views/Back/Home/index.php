@@ -1,19 +1,34 @@
 <?php
 /**
- * View: Home/index.php
+ * View: Back/Home/index.php
  * 
- * Esta view estende o layout principal e define apenas o conteúdo específico.
+ * ACESSO ÀS VARIÁVEIS DO CONTROLLER:
+ * ==================================
+ * Cada índice do array $data enviado pelo controller se torna
+ * uma variável disponível diretamente nesta view:
  * 
- * Fluxo de renderização do CodeIgniter 4:
- * 1. Controller chama view() passando dados (ex: ['title' => 'Dashboard'])
- * 2. A view é processada e encontra $this->extend() 
- * 3. O layout é carregado e as seções são inseridas nos locais de renderSection()
- * 4. O HTML final é enviado ao navegador
+ * No Controller:                    Na View:
+ * $data['title']            →       $title
+ * $data['pageHeading']      →       $pageHeading
+ * $data['userName']         →       $userName
+ * $data['totalAgendamentos']→       $totalAgendamentos
  * 
- * Variáveis esperadas do Controller:
- * - $title (string, opcional): Título da página
- * - $pageHeading (string, opcional): Título exibido na página
- * - Outras variáveis conforme necessidade da página
+ * BOA PRÁTICA - TRATAMENTO DE VARIÁVEIS OPCIONAIS:
+ * ================================================
+ * Sempre use isset() ou operador ternário para variáveis que
+ * podem não existir, evitando "Undefined variable" exceptions:
+ * 
+ * <?= isset($variavel) ? $variavel : 'valor_padrao' ?>
+ * <?= $variavel ?? 'valor_padrao' ?>  (PHP 7+, null coalescing)
+ * <?= isset($variavel) ? esc($variavel) : 'valor_padrao' ?>  (com escape XSS)
+ * 
+ * DEBUG TOOLBAR - ABA "VARS":
+ * ===========================
+ * Para depurar os dados recebidos:
+ * 1. Certifique-se que CI_ENVIRONMENT = 'development' no .env
+ * 2. Acesse a página e clique no ícone do CI4 (canto inferior direito)
+ * 3. Navegue até a aba "Vars"
+ * 4. Expanda "View Data" para ver todas as variáveis disponíveis
  */
 ?>
 
@@ -22,7 +37,13 @@
 <?= $this->section('css') ?>
 <!-- CSS específico desta página -->
 <style>
-    /* Estilos específicos para a página inicial podem ser adicionados aqui */
+    .stat-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
     .welcome-card {
         transition: transform 0.3s ease;
     }
@@ -35,7 +56,109 @@
 <?= $this->section('content') ?>
 
 <!-- Page Heading -->
-<h1 class="h3 mb-4 text-gray-800"><?= isset($pageHeading) ? esc($pageHeading) : 'Página Inicial' ?></h1>
+<!-- 
+    Demonstração de acesso à variável com tratamento seguro:
+    Se $pageHeading não existir, usa 'Dashboard' como fallback
+-->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <?= isset($pageHeading) ? esc($pageHeading) : 'Dashboard' ?>
+    </h1>
+    <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+        <i class="fas fa-download fa-sm text-white-50"></i> Gerar Relatório
+    </a>
+</div>
+
+<!-- Cards de Estatísticas -->
+<div class="row">
+
+    <!-- Card - Total de Agendamentos -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2 stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Total de Agendamentos
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            <!-- Acesso direto à variável com fallback -->
+                            <?= isset($totalAgendamentos) ? number_format($totalAgendamentos) : '0' ?>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card - Agendamentos Hoje -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2 stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Agendamentos Hoje
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            <?= isset($agendamentosHoje) ? $agendamentosHoje : '0' ?>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card - Clientes Ativos -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2 stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Clientes Ativos
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            <?= isset($clientesAtivos) ? $clientesAtivos : '0' ?>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card - Versão do Sistema -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2 stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Versão do Sistema
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            <!-- Usando null coalescing operator (PHP 7+) -->
+                            <?= $systemVersion ?? '1.0.0' ?>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-cog fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
 
 <!-- Conteúdo Principal -->
 <div class="row">
@@ -49,27 +172,97 @@
                 </h6>
             </div>
             <div class="card-body">
+                <!-- Demonstração de acesso à variável $userName -->
+                <p class="mb-2">
+                    <strong>Olá, <?= isset($userName) ? esc($userName) : 'Usuário' ?>!</strong>
+                </p>
                 <p>Este é o painel administrativo do sistema de agendamentos.</p>
                 <p class="mb-0">Utilize o menu lateral para navegar entre as funcionalidades.</p>
+                
+                <hr>
+                
+                <small class="text-muted">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    <strong>Dica:</strong> Use a Debug Toolbar (ícone do CI4 no canto inferior) 
+                    e vá na aba "Vars" para inspecionar os dados enviados pelo controller.
+                </small>
             </div>
         </div>
     </div>
 
-    <!-- Card de Informações -->
+    <!-- Card - Últimos Agendamentos (demonstração de array) -->
     <div class="col-lg-6 mb-4">
         <div class="card shadow welcome-card">
             <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-success">
-                    <i class="fas fa-info-circle mr-2"></i>Informações
+                    <i class="fas fa-calendar-alt mr-2"></i>Últimos Agendamentos
                 </h6>
             </div>
             <div class="card-body">
-                <p><strong>Data atual:</strong> <?= date('d/m/Y') ?></p>
-                <p class="mb-0"><strong>Versão do sistema:</strong> <?= isset($systemVersion) ? esc($systemVersion) : '1.0.0' ?></p>
+                <!-- Demonstração de iteração sobre array vindo do controller -->
+                <?php if (isset($ultimosAgendamentos) && is_array($ultimosAgendamentos) && count($ultimosAgendamentos) > 0): ?>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Data</th>
+                                    <th>Hora</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($ultimosAgendamentos as $agendamento): ?>
+                                    <tr>
+                                        <td><?= esc($agendamento['cliente']) ?></td>
+                                        <td><?= esc($agendamento['data']) ?></td>
+                                        <td>
+                                            <span class="badge badge-primary">
+                                                <?= esc($agendamento['hora']) ?>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else: ?>
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Nenhum agendamento encontrado.
+                    </p>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 
+</div>
+
+<!-- Card Informativo sobre Debug -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow mb-4 border-left-info">
+            <div class="card-body">
+                <h5 class="card-title text-info">
+                    <i class="fas fa-bug mr-2"></i>Debug Toolbar - Como usar
+                </h5>
+                <p class="mb-2">Para visualizar os dados enviados do Controller para esta View:</p>
+                <ol class="mb-0">
+                    <li>Certifique-se que <code>CI_ENVIRONMENT = 'development'</code> no arquivo <code>.env</code></li>
+                    <li>Acesse esta página no navegador</li>
+                    <li>Clique no ícone do CodeIgniter (canto inferior direito da tela)</li>
+                    <li>Navegue até a aba <strong>"Vars"</strong></li>
+                    <li>Expanda a seção <strong>"View Data"</strong> para ver todas as variáveis:</li>
+                </ol>
+                <ul class="mt-2 mb-0">
+                    <li><code>$title</code> = "<?= isset($title) ? esc($title) : 'não definido' ?>"</li>
+                    <li><code>$pageHeading</code> = "<?= isset($pageHeading) ? esc($pageHeading) : 'não definido' ?>"</li>
+                    <li><code>$userName</code> = "<?= isset($userName) ? esc($userName) : 'não definido' ?>"</li>
+                    <li><code>$totalAgendamentos</code> = <?= isset($totalAgendamentos) ? $totalAgendamentos : 'não definido' ?></li>
+                    <li><code>$ultimosAgendamentos</code> = [array com <?= isset($ultimosAgendamentos) ? count($ultimosAgendamentos) : 0 ?> itens]</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
 
 <?= $this->endSection() ?>
@@ -79,10 +272,16 @@
 <script>
     // Scripts específicos para a página inicial
     $(document).ready(function() {
-        console.log('Página inicial carregada com sucesso!');
+        console.log('=== DEBUG: Dados disponíveis na View ===');
+        console.log('Título da página: <?= isset($title) ? esc($title) : "não definido" ?>');
+        console.log('Usuário: <?= isset($userName) ? esc($userName) : "não definido" ?>');
+        console.log('Total Agendamentos: <?= isset($totalAgendamentos) ? $totalAgendamentos : 0 ?>');
+        console.log('=========================================');
         
-        // Exemplo de como você pode adicionar funcionalidades específicas
-        // que serão carregadas apenas nesta página
+        // Animação suave nos cards ao carregar
+        $('.stat-card').each(function(index) {
+            $(this).delay(100 * index).animate({ opacity: 1 }, 300);
+        });
     });
 </script>
 <?= $this->endSection() ?>
