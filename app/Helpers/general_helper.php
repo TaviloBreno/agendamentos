@@ -253,3 +253,93 @@ if (! function_exists('yesNo')) {
         return ($value && $value !== '0') ? 'Sim' : 'Não';
     }
 }
+
+// =========================================================================
+// FUNÇÕES DE AUTORIZAÇÃO POR ROLE
+// =========================================================================
+
+if (! function_exists('userRole')) {
+    /**
+     * Retorna o role do usuário logado
+     * 
+     * @return string Role do usuário ('super', 'admin', 'user') ou 'user' se não logado
+     */
+    function userRole(): string
+    {
+        return session('userRole') ?? 'user';
+    }
+}
+
+if (! function_exists('isSuper')) {
+    /**
+     * Verifica se o usuário logado é Super Admin
+     * 
+     * @return bool
+     */
+    function isSuper(): bool
+    {
+        return userRole() === 'super';
+    }
+}
+
+if (! function_exists('isAdmin')) {
+    /**
+     * Verifica se o usuário logado é Admin ou superior (Super/Admin)
+     * 
+     * @return bool
+     */
+    function isAdmin(): bool
+    {
+        return in_array(userRole(), ['super', 'admin'], true);
+    }
+}
+
+if (! function_exists('isUser')) {
+    /**
+     * Verifica se o usuário logado é apenas User (não é admin nem super)
+     * 
+     * @return bool
+     */
+    function isUser(): bool
+    {
+        return userRole() === 'user';
+    }
+}
+
+if (! function_exists('canAccess')) {
+    /**
+     * Verifica se o usuário logado pode acessar uma funcionalidade
+     * 
+     * Usa a matriz de permissões definida em RoleFilter.
+     * 
+     * USO NA VIEW:
+     *   <?php if (canAccess('users')): ?>
+     *       <li><a href="...">Usuários</a></li>
+     *   <?php endif; ?>
+     * 
+     * @param string $feature Funcionalidade a verificar
+     * @return bool
+     */
+    function canAccess(string $feature): bool
+    {
+        return \App\Filters\RoleFilter::canAccess(userRole(), $feature);
+    }
+}
+
+if (! function_exists('hasRole')) {
+    /**
+     * Verifica se o usuário logado possui um dos roles especificados
+     * 
+     * USO NA VIEW:
+     *   <?php if (hasRole('super', 'admin')): ?>
+     *       <!-- Mostra conteúdo para super e admin -->
+     *   <?php endif; ?>
+     * 
+     * @param string ...$roles Roles a verificar
+     * @return bool
+     */
+    function hasRole(string ...$roles): bool
+    {
+        return in_array(userRole(), $roles, true);
+    }
+}
