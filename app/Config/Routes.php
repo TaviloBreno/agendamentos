@@ -129,6 +129,12 @@ $routes->post('password/reset', 'AuthController::updatePassword', ['as' => 'pass
  * - Evitar repetição de prefixos
  * - Manter legibilidade
  * - Filtro 'auth' aplicado para exigir login
+ * - Filtro 'role' aplicado para restrição por papel
+ * 
+ * PERMISSÕES POR ROLE:
+ * - super: Acesso total (tenants, users, whatsapp, etc.)
+ * - admin: Acesso a cadastros e operacional (units, services, professionals, etc.)
+ * - user:  Apenas visualização básica (dashboard, perfil, notificações)
  * 
  * Estrutura:
  * /super           → Dashboard do painel
@@ -138,15 +144,15 @@ $routes->post('password/reset', 'AuthController::updatePassword', ['as' => 'pass
  */
 $routes->group('super', ['namespace' => 'App\Controllers\Super', 'filter' => 'auth'], static function ($routes) {
     
-    // Dashboard do painel administrativo
+    // Dashboard do painel administrativo (todos os roles autenticados)
     // GET /super → Super\HomeController::index
     $routes->get('/', 'HomeController::index', ['as' => 'super.home']);
     
     // -----------------------------------------------------------------
-    // Rotas de Unidades (Units)
+    // Rotas de Unidades (Units) - Super e Admin
     // -----------------------------------------------------------------
     // Subgrupo com prefixo 'units' para todas as rotas de unidades
-    $routes->group('units', static function ($routes) {
+    $routes->group('units', ['filter' => 'role:super,admin'], static function ($routes) {
         
         // GET /super/units → Lista todas as unidades
         $routes->get('/', 'UnitsController::index', ['as' => 'super.units']);
@@ -174,9 +180,9 @@ $routes->group('super', ['namespace' => 'App\Controllers\Super', 'filter' => 'au
     });
     
     // -----------------------------------------------------------------
-    // Rotas de Serviços (Services)
+    // Rotas de Serviços (Services) - Super e Admin
     // -----------------------------------------------------------------
-    $routes->group('services', static function ($routes) {
+    $routes->group('services', ['filter' => 'role:super,admin'], static function ($routes) {
         
         // GET /super/services → Lista todos os serviços
         $routes->get('/', 'ServicesController::index', ['as' => 'super.services']);
@@ -204,9 +210,9 @@ $routes->group('super', ['namespace' => 'App\Controllers\Super', 'filter' => 'au
     });
     
     // -----------------------------------------------------------------
-    // Rotas de Profissionais (Professionals)
+    // Rotas de Profissionais (Professionals) - Super e Admin
     // -----------------------------------------------------------------
-    $routes->group('professionals', static function ($routes) {
+    $routes->group('professionals', ['filter' => 'role:super,admin'], static function ($routes) {
         
         // GET /super/professionals → Lista todos os profissionais
         $routes->get('/', 'ProfessionalsController::index', ['as' => 'super.professionals']);
@@ -234,9 +240,9 @@ $routes->group('super', ['namespace' => 'App\Controllers\Super', 'filter' => 'au
     });
     
     // -----------------------------------------------------------------
-    // Rotas de Agendamentos (Appointments / Agenda)
+    // Rotas de Agendamentos (Appointments / Agenda) - Super e Admin
     // -----------------------------------------------------------------
-    $routes->group('appointments', static function ($routes) {
+    $routes->group('appointments', ['filter' => 'role:super,admin'], static function ($routes) {
         
         // GET /super/appointments → Lista/Calendário de agendamentos
         $routes->get('/', 'AppointmentsController::index', ['as' => 'super.appointments']);
@@ -272,7 +278,9 @@ $routes->group('super', ['namespace' => 'App\Controllers\Super', 'filter' => 'au
     // -----------------------------------------------------------------
     // Rotas de Clientes (Clients)
     // -----------------------------------------------------------------
-    $routes->group('clients', static function ($routes) {
+    // Rotas de Clientes (Clients) - Super e Admin
+    // -----------------------------------------------------------------
+    $routes->group('clients', ['filter' => 'role:super,admin'], static function ($routes) {
         
         // GET /super/clients → Lista todos os clientes
         $routes->get('/', 'ClientsController::index', ['as' => 'super.clients']);
@@ -303,9 +311,9 @@ $routes->group('super', ['namespace' => 'App\Controllers\Super', 'filter' => 'au
     });
     
     // -----------------------------------------------------------------
-    // Rotas de Usuários (Users)
+    // Rotas de Usuários (Users) - APENAS Super Admin
     // -----------------------------------------------------------------
-    $routes->group('users', static function ($routes) {
+    $routes->group('users', ['filter' => 'role:super'], static function ($routes) {
         
         // GET /super/users → Lista todos os usuários
         $routes->get('/', 'UsersController::index', ['as' => 'super.users']);
@@ -335,7 +343,9 @@ $routes->group('super', ['namespace' => 'App\Controllers\Super', 'filter' => 'au
     // -----------------------------------------------------------------
     // Rotas de Relatórios (Reports)
     // -----------------------------------------------------------------
-    $routes->group('reports', static function ($routes) {
+    // Rotas de Relatórios (Reports) - Super e Admin
+    // -----------------------------------------------------------------
+    $routes->group('reports', ['filter' => 'role:super,admin'], static function ($routes) {
         
         // GET /super/reports → Dashboard de relatórios
         $routes->get('/', 'ReportsController::index', ['as' => 'super.reports']);
@@ -357,9 +367,9 @@ $routes->group('super', ['namespace' => 'App\Controllers\Super', 'filter' => 'au
     });
     
     // -----------------------------------------------------------------
-    // Rotas de WhatsApp (Configuração e Fila)
+    // Rotas de WhatsApp (Configuração e Fila) - APENAS Super Admin
     // -----------------------------------------------------------------
-    $routes->group('whatsapp', static function ($routes) {
+    $routes->group('whatsapp', ['filter' => 'role:super'], static function ($routes) {
         
         // GET /super/whatsapp → Página de configuração
         $routes->get('/', 'WhatsAppController::index', ['as' => 'super.whatsapp']);
@@ -384,9 +394,9 @@ $routes->group('super', ['namespace' => 'App\Controllers\Super', 'filter' => 'au
     });
 
     // -----------------------------------------------------------------
-    // Rotas de Empresas/Tenants (Multi-tenant)
+    // Rotas de Empresas/Tenants (Multi-tenant) - APENAS Super Admin
     // -----------------------------------------------------------------
-    $routes->group('tenants', static function ($routes) {
+    $routes->group('tenants', ['filter' => 'role:super'], static function ($routes) {
         
         // GET /super/tenants → Lista todas as empresas
         $routes->get('/', 'TenantsController::index', ['as' => 'super.tenants']);
