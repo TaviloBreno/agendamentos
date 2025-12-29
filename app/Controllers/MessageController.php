@@ -69,6 +69,70 @@ class MessageController extends BaseController
     }
 
     /**
+     * Retorna dados para o dropdown de mensagens (AJAX)
+     * Similar ao dropdown de notificações
+     */
+    public function dropdown()
+    {
+        $userId = $this->getCurrentUserId();
+
+        if (!$userId) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Sessão expirada',
+            ]);
+        }
+
+        // Obtém conversas com mensagens não lidas
+        $conversations = $this->conversationModel->getByUser($userId);
+        
+        $unreadConversations = [];
+        $totalUnread = 0;
+
+        foreach ($conversations as $conversation) {
+            $unreadCount = $conversation->unreadCount($userId);
+            
+            if ($unreadCount > 0) {
+                $totalUnread += $unreadCount;
+                $lastMessage = $conversation->getLastMessage();
+                $users = $conversation->getUsers();
+                
+                // Pega o primeiro usuário que não seja o atual para avatar
+                $otherUser = null;
+                foreach ($users as $user) {
+                    if ($user->id !== $userId) {
+                        $otherUser = $user;
+                        break;
+                    }
+                }
+
+                $unreadConversations[] = [
+                    'id'          => $conversation->id,
+                    'title'       => $conversation->getTitleFor($userId),
+                    'lastMessage' => $lastMessage ? (strlen($lastMessage->message) > 50 
+                        ? substr($lastMessage->message, 0, 50) . '...' 
+                        : $lastMessage->message) : 'Anexo',
+                    'timeAgo'     => $lastMessage ? $lastMessage->timeAgo() : '',
+                    'unreadCount' => $unreadCount,
+                    'avatar'      => $otherUser ? $otherUser->avatarUrl(40) : '/back/img/undraw_profile.svg',
+                    'senderName'  => $lastMessage && $lastMessage->getSender() 
+                        ? $lastMessage->getSender()->name 
+                        : 'Desconhecido',
+                ];
+            }
+        }
+
+        // Limita a 5 conversas no dropdown
+        $unreadConversations = array_slice($unreadConversations, 0, 5);
+
+        return $this->response->setJSON([
+            'success'       => true,
+            'unreadCount'   => $totalUnread,
+            'conversations' => $unreadConversations,
+        ]);
+    }
+
+    /**
      * Exibe uma conversa
      */
     public function show(int $conversationId)

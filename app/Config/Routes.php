@@ -470,6 +470,7 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     // Mensagens
     // -----------------------------------------------------------------
     $routes->get('messages', 'MessageController::index', ['as' => 'admin.messages']);
+    $routes->get('messages/dropdown', 'MessageController::dropdown', ['as' => 'admin.messages.dropdown']);
     $routes->get('messages/create', 'MessageController::create', ['as' => 'admin.messages.create']);
     $routes->get('messages/(:num)', 'MessageController::show/$1', ['as' => 'admin.messages.show']);
     $routes->post('messages/(:num)/send', 'MessageController::send/$1', ['as' => 'admin.messages.send']);
