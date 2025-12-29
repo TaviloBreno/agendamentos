@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Entities\User;
 use App\Models\UserModel;
 
 /**
@@ -17,12 +18,43 @@ class ProfileController extends BaseController
     }
 
     /**
+     * Obtém o usuário atual da sessão como entidade User
+     * 
+     * @return User|null
+     */
+    protected function getCurrentUser(): ?User
+    {
+        $userId = session()->get('user_id');
+        
+        if (!$userId) {
+            return null;
+        }
+
+        $user = $this->userModel->find($userId);
+
+        if (!$user) {
+            return null;
+        }
+
+        // Se retornou array, converte para entidade
+        if (is_array($user)) {
+            return new User($user);
+        }
+
+        // Se já é User, retorna diretamente
+        if ($user instanceof User) {
+            return $user;
+        }
+
+        return null;
+    }
+
+    /**
      * Página de perfil do usuário
      */
     public function index()
     {
-        $userId = session()->get('user_id');
-        $user = $this->userModel->find($userId);
+        $user = $this->getCurrentUser();
 
         if (!$user) {
             return redirect()->to('/login')->with('error', 'Sessão expirada. Faça login novamente.');
@@ -39,8 +71,7 @@ class ProfileController extends BaseController
      */
     public function settings()
     {
-        $userId = session()->get('user_id');
-        $user = $this->userModel->find($userId);
+        $user = $this->getCurrentUser();
 
         if (!$user) {
             return redirect()->to('/login')->with('error', 'Sessão expirada. Faça login novamente.');
@@ -60,8 +91,11 @@ class ProfileController extends BaseController
     {
         $this->checkMethod('POST');
 
-        $userId = session()->get('user_id');
-        $user = $this->userModel->find($userId);
+        $user = $this->getCurrentUser();
+        
+        if (!$user) {
+            return redirect()->to('/login')->with('error', 'Sessão expirada. Faça login novamente.');
+        }
 
         $data = [
             'name'  => trim($this->request->getPost('name')),
@@ -79,7 +113,7 @@ class ProfileController extends BaseController
         }
 
         // Atualiza
-        $this->userModel->update($userId, $data);
+        $this->userModel->update($user->id, $data);
 
         return redirect()->to('/admin/profile')->with('success', 'Perfil atualizado com sucesso');
     }
@@ -91,9 +125,16 @@ class ProfileController extends BaseController
     {
         $this->checkMethod('POST');
 
-        $userId = session()->get('user_id');
-        $user = $this->userModel->find($userId);
-
+        $user = $this->getCurrentUser();
+        
+        if (!$user) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Sessão expirada']);
+            }
+            return redirect()->to('/login')->with('error', 'Sessão expirada. Faça login novamente.');
+        }
+        
+        $userId = $user->id;
         $file = $this->request->getFile('avatar');
 
         if (!$file || !$file->isValid()) {
@@ -174,8 +215,16 @@ class ProfileController extends BaseController
      */
     public function removeAvatar()
     {
-        $userId = session()->get('user_id');
-        $user = $this->userModel->find($userId);
+        $user = $this->getCurrentUser();
+        
+        if (!$user) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Sessão expirada']);
+            }
+            return redirect()->to('/login')->with('error', 'Sessão expirada. Faça login novamente.');
+        }
+        
+        $userId = $user->id;
 
         // Remover arquivo se existir
         if ($user->hasCustomAvatar()) {
@@ -208,8 +257,16 @@ class ProfileController extends BaseController
     {
         $this->checkMethod('POST');
 
-        $userId = session()->get('user_id');
-        $user = $this->userModel->find($userId);
+        $user = $this->getCurrentUser();
+        
+        if (!$user) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Sessão expirada']);
+            }
+            return redirect()->to('/login')->with('error', 'Sessão expirada. Faça login novamente.');
+        }
+        
+        $userId = $user->id;
 
         // Coleta as configurações do formulário
         $settings = [
@@ -242,8 +299,11 @@ class ProfileController extends BaseController
     {
         $this->checkMethod('POST');
 
-        $userId = session()->get('user_id');
-        $user = $this->userModel->find($userId);
+        $user = $this->getCurrentUser();
+        
+        if (!$user) {
+            return redirect()->to('/login')->with('error', 'Sessão expirada. Faça login novamente.');
+        }
 
         $currentPassword = $this->request->getPost('current_password');
         $newPassword = $this->request->getPost('new_password');

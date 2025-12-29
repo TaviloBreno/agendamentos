@@ -26,11 +26,24 @@ class MessageController extends BaseController
     }
 
     /**
+     * Obtém o ID do usuário atual ou redireciona para login
+     */
+    protected function getCurrentUserId(): ?int
+    {
+        $userId = session()->get('user_id');
+        return $userId ? (int) $userId : null;
+    }
+
+    /**
      * Lista as conversas do usuário (inbox)
      */
     public function index()
     {
-        $userId = session()->get('user_id');
+        $userId = $this->getCurrentUserId();
+        
+        if (!$userId) {
+            return redirect()->to('/login')->with('error', 'Sessão expirada. Faça login novamente.');
+        }
 
         $conversations = $this->conversationModel->getByUser($userId);
 
@@ -60,7 +73,11 @@ class MessageController extends BaseController
      */
     public function show(int $conversationId)
     {
-        $userId = session()->get('user_id');
+        $userId = $this->getCurrentUserId();
+        
+        if (!$userId) {
+            return redirect()->to('/login')->with('error', 'Sessão expirada. Faça login novamente.');
+        }
 
         $conversation = $this->conversationModel->find($conversationId);
 
@@ -96,7 +113,11 @@ class MessageController extends BaseController
      */
     public function create()
     {
-        $userId = session()->get('user_id');
+        $userId = $this->getCurrentUserId();
+        
+        if (!$userId) {
+            return redirect()->to('/login')->with('error', 'Sessão expirada. Faça login novamente.');
+        }
 
         // Lista usuários disponíveis para conversa (mesmo tenant)
         $tenantId = session()->get('tenant_id');
@@ -115,7 +136,11 @@ class MessageController extends BaseController
      */
     public function startDirect(int $targetUserId)
     {
-        $userId = session()->get('user_id');
+        $userId = $this->getCurrentUserId();
+        
+        if (!$userId) {
+            return redirect()->to('/login')->with('error', 'Sessão expirada. Faça login novamente.');
+        }
 
         // Não pode conversar consigo mesmo
         if ($targetUserId === $userId) {
@@ -141,7 +166,11 @@ class MessageController extends BaseController
     {
         $this->checkMethod('POST');
 
-        $userId = session()->get('user_id');
+        $userId = $this->getCurrentUserId();
+        
+        if (!$userId) {
+            return redirect()->to('/login')->with('error', 'Sessão expirada. Faça login novamente.');
+        }
 
         $subject = $this->request->getPost('subject');
         $participantIds = $this->request->getPost('participants');
@@ -166,7 +195,14 @@ class MessageController extends BaseController
     {
         $this->checkMethod('POST');
 
-        $userId = session()->get('user_id');
+        $userId = $this->getCurrentUserId();
+        
+        if (!$userId) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Sessão expirada']);
+            }
+            return redirect()->to('/login')->with('error', 'Sessão expirada. Faça login novamente.');
+        }
 
         // Verifica se o usuário é participante
         if (!$this->participantModel->isParticipant($conversationId, $userId)) {
@@ -263,7 +299,11 @@ class MessageController extends BaseController
      */
     public function loadMore(int $conversationId)
     {
-        $userId = session()->get('user_id');
+        $userId = $this->getCurrentUserId();
+        
+        if (!$userId) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Sessão expirada']);
+        }
 
         // Verifica se o usuário é participante
         if (!$this->participantModel->isParticipant($conversationId, $userId)) {
@@ -309,7 +349,11 @@ class MessageController extends BaseController
      */
     public function markRead(int $conversationId)
     {
-        $userId = session()->get('user_id');
+        $userId = $this->getCurrentUserId();
+        
+        if (!$userId) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Sessão expirada']);
+        }
 
         if (!$this->participantModel->isParticipant($conversationId, $userId)) {
             return $this->response->setJSON([
@@ -330,7 +374,11 @@ class MessageController extends BaseController
      */
     public function toggleMute(int $conversationId)
     {
-        $userId = session()->get('user_id');
+        $userId = $this->getCurrentUserId();
+        
+        if (!$userId) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Sessão expirada']);
+        }
 
         $participant = $this->participantModel->getParticipant($conversationId, $userId);
 
@@ -356,7 +404,11 @@ class MessageController extends BaseController
      */
     public function leave(int $conversationId)
     {
-        $userId = session()->get('user_id');
+        $userId = $this->getCurrentUserId();
+        
+        if (!$userId) {
+            return redirect()->to('/login')->with('error', 'Sessão expirada. Faça login novamente.');
+        }
 
         $conversation = $this->conversationModel->find($conversationId);
 

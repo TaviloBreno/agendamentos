@@ -17,11 +17,25 @@ class NotificationController extends BaseController
     }
 
     /**
+     * Obtém o ID do usuário atual ou null se não logado
+     */
+    protected function getCurrentUserId(): ?int
+    {
+        $userId = session()->get('user_id');
+        return $userId ? (int) $userId : null;
+    }
+
+    /**
      * Lista todas as notificações do usuário
      */
     public function index()
     {
-        $userId = session()->get('user_id');
+        $userId = $this->getCurrentUserId();
+        
+        if (!$userId) {
+            return redirect()->to('/login')->with('error', 'Sessão expirada. Faça login novamente.');
+        }
+
         $filter = $this->request->getGet('filter');
 
         $builder = $this->notificationModel->where('user_id', $userId);
