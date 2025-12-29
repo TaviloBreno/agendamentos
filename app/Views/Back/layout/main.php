@@ -19,6 +19,35 @@
     <!-- Custom styles for this template-->
     <link href="<?= base_url('back/css/sb-admin-2.min.css') ?>" rel="stylesheet">
 
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
+    
+    <!-- Select2 Custom Styles for Bootstrap 4 -->
+    <style>
+        .select2-container--bootstrap-5 .select2-selection {
+            border: 1px solid #d1d3e2;
+            border-radius: 0.35rem;
+            min-height: 38px;
+            padding: 0.375rem 0.75rem;
+        }
+        .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice {
+            background-color: #4e73df;
+            border: none;
+            color: #fff;
+            padding: 2px 8px;
+            margin: 2px;
+        }
+        .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice__remove {
+            color: #fff;
+            margin-right: 5px;
+        }
+        .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice__remove:hover {
+            color: #fff;
+            background-color: transparent;
+        }
+    </style>
+
     <!-- Seção para CSS específico por view -->
     <?= $this->renderSection('css') ?>
 
@@ -67,12 +96,11 @@
                 </a>
             </li>
 
-            <!-- Nav Item - Serviços (Em breve) -->
-            <li class="nav-item">
-                <a class="nav-link disabled" href="#" style="opacity: 0.5;">
+            <!-- Nav Item - Serviços -->
+            <li class="nav-item <?= url_is('super/services*') ? 'active' : '' ?>">
+                <a class="nav-link" href="<?= route_to('super.services') ?>">
                     <i class="fas fa-fw fa-concierge-bell"></i>
                     <span>Serviços</span>
-                    <span class="badge badge-secondary ml-2">Em breve</span>
                 </a>
             </li>
 
@@ -402,6 +430,24 @@
 
     <!-- Custom scripts for all pages-->
     <script src="<?= base_url('back/js/sb-admin-2.min.js') ?>"></script>
+
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/i18n/pt-BR.js"></script>
+    
+    <!-- Initialize Select2 for services -->
+    <script>
+        $(document).ready(function() {
+            // Initialize Select2 for service multi-select
+            $('.select2-services').select2({
+                theme: 'bootstrap-5',
+                language: 'pt-BR',
+                placeholder: $(this).data('placeholder') || 'Selecione...',
+                allowClear: true,
+                width: '100%'
+            });
+        });
+    </script>
 
     <!-- Seção para scripts JavaScript específicos por view -->
     <?= $this->renderSection('js') ?>

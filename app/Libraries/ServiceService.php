@@ -49,8 +49,8 @@ class ServiceService extends MyBaseService
         $serviceModel = new ServiceModel();
         $services = $serviceModel->orderBy('name', 'ASC')->findAll();
 
-        // Configuração da Table Class
-        $this->table->setHeading([
+        // Configuração da Table Class (herdada da MyBaseService)
+        $this->htmlTable->setHeading([
             'ID',
             'Nome',
             'Duração',
@@ -59,15 +59,9 @@ class ServiceService extends MyBaseService
             'Ações',
         ]);
 
-        // Adiciona classe para DataTables
-        $template = [
-            'table_open' => '<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">',
-        ];
-        $this->table->setTemplate($template);
-
         // Popula a tabela com os dados
         foreach ($services as $service) {
-            $this->table->addRow([
+            $this->htmlTable->addRow([
                 $service->id,
                 esc($service->name),
                 $service->durationFormatted(),
@@ -77,7 +71,7 @@ class ServiceService extends MyBaseService
             ]);
         }
 
-        return $this->table->generate();
+        return $this->htmlTable->generate();
     }
 
     /**

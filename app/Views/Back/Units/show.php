@@ -134,6 +134,71 @@
                 <?php endif; ?>
             </div>
         </div>
+
+        <!-- Serviços Associados -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-concierge-bell mr-2"></i>Serviços Oferecidos
+                </h6>
+            </div>
+            <div class="card-body">
+                <?php
+                // Decodifica os serviços associados (JSON para array)
+                $serviceIds = is_string($unit->services) ? json_decode($unit->services, true) : $unit->services;
+                $serviceIds = is_array($serviceIds) ? $serviceIds : [];
+                
+                if (empty($serviceIds)):
+                ?>
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-info-circle fa-2x mb-3"></i>
+                        <p class="mb-2">Nenhum serviço associado a esta unidade.</p>
+                        <a href="<?= route_to('super.units.edit', $unit->id) ?>" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus mr-1"></i> Adicionar Serviços
+                        </a>
+                    </div>
+                <?php else:
+                    // Busca os serviços pelo IDs
+                    $serviceModel = model(\App\Models\ServiceModel::class);
+                    $services = $serviceModel->findByIds($serviceIds);
+                ?>
+                    <div class="row">
+                        <?php foreach ($services as $service): ?>
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 border-left-primary">
+                                    <div class="card-body py-2 px-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="mb-1 font-weight-bold text-primary">
+                                                    <?= esc($service->name) ?>
+                                                </h6>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-clock mr-1"></i><?= $service->durationFormatted() ?>
+                                                    &nbsp;&bull;&nbsp;
+                                                    <i class="fas fa-tag mr-1"></i><?= $service->priceFormatted() ?>
+                                                </small>
+                                            </div>
+                                            <span class="badge badge-<?= $service->active ? 'success' : 'secondary' ?>">
+                                                <?= $service->active ? 'Ativo' : 'Inativo' ?>
+                                            </span>
+                                        </div>
+                                        <?php if ($service->description): ?>
+                                            <p class="text-muted small mb-0 mt-2"><?= $service->shortDescription(80) ?></p>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="text-right mt-2">
+                        <small class="text-muted">
+                            <i class="fas fa-layer-group mr-1"></i>
+                            <?= count($services) ?> serviço<?= count($services) > 1 ? 's' : '' ?> associado<?= count($services) > 1 ? 's' : '' ?>
+                        </small>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
     </div>
     
     <!-- Sidebar com Status e Datas -->
