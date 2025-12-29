@@ -81,6 +81,128 @@ Sistema de agendamentos **full-stack** desenvolvido com boas práticas de engenh
 
 ---
 
+## 📸 Screenshots
+
+<details>
+<summary><b>🏠 Área Pública - Home & Agendamento</b></summary>
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="public/front/01.png" alt="Home Page" width="400"/>
+      <br/><em>Página Inicial</em>
+    </td>
+    <td align="center">
+      <img src="public/front/02.png" alt="Serviços" width="400"/>
+      <br/><em>Seleção de Serviços</em>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="public/front/03.png" alt="Profissionais" width="400"/>
+      <br/><em>Escolha de Profissional</em>
+    </td>
+    <td align="center">
+      <img src="public/front/04.png" alt="Calendário" width="400"/>
+      <br/><em>Calendário de Agendamento</em>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="public/front/05.png" alt="Horários" width="400"/>
+      <br/><em>Seleção de Horários</em>
+    </td>
+    <td align="center">
+      <img src="public/front/06.png" alt="Confirmação" width="400"/>
+      <br/><em>Confirmação do Agendamento</em>
+    </td>
+  </tr>
+</table>
+
+</details>
+
+<details>
+<summary><b>🔐 Autenticação</b></summary>
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="public/front/07.png" alt="Login" width="400"/>
+      <br/><em>Tela de Login</em>
+    </td>
+    <td align="center">
+      <img src="public/front/08.png" alt="Registro" width="400"/>
+      <br/><em>Tela de Registro</em>
+    </td>
+  </tr>
+</table>
+
+</details>
+
+<details>
+<summary><b>📊 Painel Administrativo</b></summary>
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="public/front/09.png" alt="Dashboard" width="400"/>
+      <br/><em>Dashboard Principal</em>
+    </td>
+    <td align="center">
+      <img src="public/front/10.png" alt="Agendamentos" width="400"/>
+      <br/><em>Gestão de Agendamentos</em>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="public/front/11.png" alt="Clientes" width="400"/>
+      <br/><em>Gestão de Clientes</em>
+    </td>
+    <td align="center">
+      <img src="public/front/12.png" alt="Profissionais" width="400"/>
+      <br/><em>Gestão de Profissionais</em>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="public/front/13.png" alt="Serviços" width="400"/>
+      <br/><em>Gestão de Serviços</em>
+    </td>
+    <td align="center">
+      <img src="public/front/14.png" alt="Unidades" width="400"/>
+      <br/><em>Gestão de Unidades</em>
+    </td>
+  </tr>
+</table>
+
+</details>
+
+<details>
+<summary><b>📈 Relatórios & Configurações</b></summary>
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="public/front/15.png" alt="Relatórios" width="400"/>
+      <br/><em>Relatórios e Gráficos</em>
+    </td>
+    <td align="center">
+      <img src="public/front/16.png" alt="Configurações" width="400"/>
+      <br/><em>Configurações do Sistema</em>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2">
+      <img src="public/front/17.png" alt="Perfil" width="400"/>
+      <br/><em>Perfil do Usuário</em>
+    </td>
+  </tr>
+</table>
+
+</details>
+
+---
+
 ## 🏗️ Arquitetura
 
 ```
