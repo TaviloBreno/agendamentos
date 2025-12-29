@@ -271,9 +271,29 @@ php spark serve
   - [x] Seeder de Profissionais
   - [x] Seeder de Clientes (Faker)
   - [x] Seeder de Agendamentos
-- [ ] Multi-tenant (múltiplas empresas)
-- [ ] Pagamentos online
-- [ ] App mobile (PWA)
+- [x] **Multi-tenant (múltiplas empresas)**
+  - [x] Tabela de Tenants (empresas)
+  - [x] Identificação por subdomain/path/domain
+  - [x] TenantFilter para isolamento de dados
+  - [x] TenantService global
+  - [x] CRUD de Empresas (Super Admin)
+  - [x] Sistema de planos (free/basic/pro/enterprise)
+  - [x] Limites configuráveis (usuários, unidades, agendamentos)
+- [x] **Pagamentos online (MercadoPago)**
+  - [x] Checkout Pro (redirect)
+  - [x] PIX com QR Code
+  - [x] Cartão de Crédito (tokenização)
+  - [x] Boleto Bancário
+  - [x] Webhook para confirmação automática
+  - [x] Tabela de Payments
+  - [x] Telas de sucesso/falha/pendente
+- [x] **App mobile (PWA)**
+  - [x] manifest.json completo
+  - [x] Service Worker com cache strategies
+  - [x] Offline page
+  - [x] Ícones em vários tamanhos
+  - [x] Push notifications (estrutura)
+  - [x] Instalação na home screen
 
 ---
 

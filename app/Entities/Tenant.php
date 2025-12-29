@@ -80,7 +80,7 @@ class Tenant extends MyBaseEntity
     /**
      * Limites por plano
      */
-    protected static array $planLimits = [
+    public static array $planLimits = [
         'free' => [
             'users' => 2,
             'units' => 1,
