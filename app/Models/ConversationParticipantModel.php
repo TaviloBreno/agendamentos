@@ -120,7 +120,7 @@ class ConversationParticipantModel extends Model
     public function getActiveParticipants(int $conversationId): array
     {
         return $this->where('conversation_id', $conversationId)
-            ->whereNull('left_at')
+            ->where('left_at', null)
             ->findAll();
     }
 
@@ -135,7 +135,7 @@ class ConversationParticipantModel extends Model
     {
         return $this->where('conversation_id', $conversationId)
             ->where('user_id', $userId)
-            ->whereNull('left_at')
+            ->where('left_at', null)
             ->countAllResults() > 0;
     }
 

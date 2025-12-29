@@ -88,7 +88,7 @@ class NotificationModel extends Model
     public function getUnread(int $userId, int $limit = 10): array
     {
         return $this->where('user_id', $userId)
-            ->whereNull('read_at')
+            ->where('read_at', null)
             ->orderBy('created_at', 'DESC')
             ->limit($limit)
             ->findAll();
@@ -103,7 +103,7 @@ class NotificationModel extends Model
     public function countUnread(int $userId): int
     {
         return $this->where('user_id', $userId)
-            ->whereNull('read_at')
+            ->where('read_at', null)
             ->countAllResults();
     }
 
@@ -131,7 +131,7 @@ class NotificationModel extends Model
     public function markAllAsRead(int $userId): bool
     {
         return $this->where('user_id', $userId)
-            ->whereNull('read_at')
+            ->where('read_at', null)
             ->set('read_at', date('Y-m-d H:i:s'))
             ->update();
     }

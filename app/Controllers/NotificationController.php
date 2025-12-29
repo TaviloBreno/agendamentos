@@ -42,9 +42,9 @@ class NotificationController extends BaseController
 
         // Filtros
         if ($filter === 'unread') {
-            $builder->whereNull('read_at');
+            $builder->where('read_at', null);
         } elseif ($filter === 'read') {
-            $builder->whereNotNull('read_at');
+            $builder->where('read_at IS NOT NULL');
         }
 
         $notifications = $builder->orderBy('created_at', 'DESC')
@@ -64,7 +64,11 @@ class NotificationController extends BaseController
      */
     public function dropdown()
     {
-        $userId = session()->get('user_id');
+        $userId = $this->getCurrentUserId();
+        
+        if (!$userId) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Sessão expirada', 'notifications' => [], 'unreadCount' => 0]);
+        }
 
         $notifications = $this->notificationModel->getUnread($userId, 5);
         $unreadCount = $this->notificationModel->countUnread($userId);
@@ -92,7 +96,14 @@ class NotificationController extends BaseController
      */
     public function markRead(int $id)
     {
-        $userId = session()->get('user_id');
+        $userId = $this->getCurrentUserId();
+        
+        if (!$userId) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Sessão expirada']);
+            }
+            return redirect()->to('/login')->with('error', 'Sessão expirada. Faça login novamente.');
+        }
 
         $notification = $this->notificationModel->where('user_id', $userId)
             ->find($id);
@@ -129,7 +140,14 @@ class NotificationController extends BaseController
      */
     public function markAllRead()
     {
-        $userId = session()->get('user_id');
+        $userId = $this->getCurrentUserId();
+        
+        if (!$userId) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Sessão expirada']);
+            }
+            return redirect()->to('/login')->with('error', 'Sessão expirada. Faça login novamente.');
+        }
 
         $this->notificationModel->markAllAsRead($userId);
 
@@ -149,7 +167,14 @@ class NotificationController extends BaseController
      */
     public function delete(int $id)
     {
-        $userId = session()->get('user_id');
+        $userId = $this->getCurrentUserId();
+        
+        if (!$userId) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Sessão expirada']);
+            }
+            return redirect()->to('/login')->with('error', 'Sessão expirada. Faça login novamente.');
+        }
 
         $notification = $this->notificationModel->where('user_id', $userId)
             ->find($id);
@@ -182,7 +207,14 @@ class NotificationController extends BaseController
      */
     public function clearRead()
     {
-        $userId = session()->get('user_id');
+        $userId = $this->getCurrentUserId();
+        
+        if (!$userId) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Sessão expirada']);
+            }
+            return redirect()->to('/login')->with('error', 'Sessão expirada. Faça login novamente.');
+        }
 
         $this->notificationModel->where('user_id', $userId)
             ->whereNotNull('read_at')
