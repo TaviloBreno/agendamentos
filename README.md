@@ -4,7 +4,7 @@
 
 ### Plataforma completa para gerenciamento de agendamentos desenvolvida com CodeIgniter 4
 
-[![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
+[![PHP Version](https://img.shields.io/badge/PHP-8.3%2B-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
 [![CodeIgniter](https://img.shields.io/badge/CodeIgniter-4.6.4-EF4223?style=for-the-badge&logo=codeigniter&logoColor=white)](https://codeigniter.com)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://mysql.com)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-4.6-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com)
@@ -12,6 +12,7 @@
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 [Funcionalidades](#-funcionalidades) •
+[API REST](#-api-rest) •
 [Arquitetura](#-arquitetura) •
 [Instalação](#-instalação) •
 [Screenshots](#-screenshots) •
@@ -27,10 +28,11 @@ Sistema de agendamentos **full-stack** desenvolvido com boas práticas de engenh
 
 - **Arquitetura em camadas** (MVC + Service Layer)
 - **Autenticação completa** com sessões seguras
-- **CRUD completo** com validação server-side
-- **Interface responsiva** com Bootstrap 4 / SB Admin 2
+- **API REST** completa para integrações externas
+- **Notificações** via Email e WhatsApp
+- **Relatórios e Dashboards** com gráficos interativos
+- **Interface responsiva** com Bootstrap 4 / Bulma CSS
 - **Proteção CSRF** automática em formulários
-- **Soft Deletes** para auditoria de dados
 
 > 💡 Projeto desenvolvido com foco em **código limpo**, **documentação** e **escalabilidade**.
 
@@ -270,11 +272,109 @@ Validação em tempo real com feedback visual Bootstrap.
   - [x] Confirmação e criação de agendamentos
   - [x] Página "Meus Agendamentos"
   - [x] Cancelamento de agendamentos
-- [ ] Notificações por email
-- [ ] API REST
-- [ ] Relatórios e dashboards
+  - [x] Hero slider com imagens Unsplash
+  - [x] Estatísticas animadas
+  - [x] Seção de depoimentos
+- [x] **Notificações**
+  - [x] Email de confirmação de agendamento
+  - [x] Lembrete 24h antes (CRON)
+  - [x] Notificação de cancelamento
+  - [x] Notificação de alteração de status
+  - [x] Integração com WhatsApp (Evolution API / Twilio / Z-API)
+- [x] **API REST Completa**
+  - [x] Endpoints para Unidades, Serviços, Profissionais
+  - [x] Endpoints para Agendamentos e Clientes
+  - [x] Paginação e filtros
+  - [x] Respostas JSON padronizadas
+- [x] **Relatórios e Dashboards**
+  - [x] Dashboard com KPIs
+  - [x] Relatório de agendamentos
+  - [x] Relatório de clientes
+  - [x] Relatório financeiro
+  - [x] Gráficos interativos (Chart.js)
+  - [x] Exportação CSV
+- [x] **Seeders de Dados**
+  - [x] Seeder de Unidades
+  - [x] Seeder de Serviços
+  - [x] Seeder de Profissionais
+  - [x] Seeder de Clientes (Faker)
+  - [x] Seeder de Agendamentos
 - [ ] Multi-tenant (múltiplas empresas)
-- [ ] Integração com WhatsApp
+- [ ] Pagamentos online
+- [ ] App mobile (PWA)
+
+---
+
+## 🔌 API REST
+
+### Base URL
+```
+/api/v1
+```
+
+### Endpoints Disponíveis
+
+#### Unidades
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/units` | Lista todas as unidades |
+| GET | `/units/{id}` | Retorna uma unidade |
+| POST | `/units` | Cria uma unidade |
+| PUT | `/units/{id}` | Atualiza uma unidade |
+| DELETE | `/units/{id}` | Remove uma unidade |
+
+#### Serviços
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/services` | Lista serviços (filtro: ?unit_id=) |
+| GET | `/services/{id}` | Retorna um serviço |
+| POST | `/services` | Cria um serviço |
+| PUT | `/services/{id}` | Atualiza um serviço |
+| DELETE | `/services/{id}` | Remove um serviço |
+
+#### Profissionais
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/professionals` | Lista profissionais |
+| GET | `/professionals/{id}` | Retorna um profissional |
+| GET | `/professionals/{id}/availability` | Disponibilidade |
+| POST | `/professionals` | Cria um profissional |
+| PUT | `/professionals/{id}` | Atualiza um profissional |
+| DELETE | `/professionals/{id}` | Remove um profissional |
+
+#### Agendamentos
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/appointments` | Lista agendamentos (com filtros) |
+| GET | `/appointments/{id}` | Retorna um agendamento |
+| GET | `/appointments/available-slots` | Horários disponíveis |
+| POST | `/appointments` | Cria um agendamento |
+| POST | `/appointments/{id}/confirm` | Confirma agendamento |
+| POST | `/appointments/{id}/complete` | Conclui agendamento |
+| POST | `/appointments/{id}/cancel` | Cancela agendamento |
+| PUT | `/appointments/{id}` | Atualiza agendamento |
+| DELETE | `/appointments/{id}` | Cancela agendamento |
+
+#### Clientes
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/clients` | Lista clientes (paginado) |
+| GET | `/clients/search?q=` | Busca clientes |
+| GET | `/clients/{id}` | Retorna um cliente |
+| GET | `/clients/{id}/appointments` | Agendamentos do cliente |
+| POST | `/clients` | Cria um cliente |
+| PUT | `/clients/{id}` | Atualiza um cliente |
+| DELETE | `/clients/{id}` | Remove um cliente |
+
+### Formato de Resposta
+
+```json
+{
+    "success": true,
+    "message": "Operação realizada com sucesso",
+    "data": { ... }
+}
+```
 
 ---
 

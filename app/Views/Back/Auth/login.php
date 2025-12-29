@@ -97,7 +97,7 @@
                                     <?php endif; ?>
 
                                     <!-- Formulário de Login -->
-                                    <form class="user" action="<?= base_url('/') ?>" method="POST">
+                                    <form class="user" action="<?= route_to('login.attempt') ?>" method="POST">
                                         <?= csrf_field() ?>
                                         
                                         <div class="form-group">

@@ -230,6 +230,8 @@
     .hero-slider .hero-content p {
         font-size: 1.1rem;
     }
+}
+</style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
