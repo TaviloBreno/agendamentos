@@ -106,10 +106,70 @@ $routes->group('super', ['namespace' => 'App\Controllers\Super', 'filter' => 'au
     });
     
     // -----------------------------------------------------------------
-    // Futuras rotas do painel administrativo
+    // Rotas de Profissionais (Professionals)
     // -----------------------------------------------------------------
-    // $routes->group('users', static function ($routes) { ... });
-    // $routes->group('appointments', static function ($routes) { ... });
+    $routes->group('professionals', static function ($routes) {
+        
+        // GET /super/professionals → Lista todos os profissionais
+        $routes->get('/', 'ProfessionalsController::index', ['as' => 'super.professionals']);
+        
+        // GET /super/professionals/new → Formulário de novo profissional
+        $routes->get('new', 'ProfessionalsController::new', ['as' => 'super.professionals.new']);
+        
+        // POST /super/professionals → Processa criação
+        $routes->post('/', 'ProfessionalsController::create', ['as' => 'super.professionals.create']);
+        
+        // GET /super/professionals/(:num) → Exibe detalhes de um profissional
+        $routes->get('(:num)', 'ProfessionalsController::show/$1', ['as' => 'super.professionals.show']);
+        
+        // GET /super/professionals/(:num)/edit → Formulário de edição
+        $routes->get('(:num)/edit', 'ProfessionalsController::edit/$1', ['as' => 'super.professionals.edit']);
+        
+        // PUT /super/professionals/(:num) → Processa atualização
+        $routes->put('(:num)', 'ProfessionalsController::update/$1', ['as' => 'super.professionals.update']);
+        
+        // PUT /super/professionals/(:num)/action → Toggle ativar/desativar
+        $routes->put('(:num)/action', 'ProfessionalsController::action/$1', ['as' => 'super.professionals.action']);
+        
+        // DELETE /super/professionals/(:num) → Remove profissional
+        $routes->delete('(:num)', 'ProfessionalsController::delete/$1', ['as' => 'super.professionals.delete']);
+    });
+    
+    // -----------------------------------------------------------------
+    // Rotas de Agendamentos (Appointments / Agenda)
+    // -----------------------------------------------------------------
+    $routes->group('appointments', static function ($routes) {
+        
+        // GET /super/appointments → Lista/Calendário de agendamentos
+        $routes->get('/', 'AppointmentsController::index', ['as' => 'super.appointments']);
+        
+        // GET /super/appointments/calendar → Dados JSON para calendário
+        $routes->get('calendar', 'AppointmentsController::calendar', ['as' => 'super.appointments.calendar']);
+        
+        // GET /super/appointments/slots → Horários disponíveis JSON
+        $routes->get('slots', 'AppointmentsController::slots', ['as' => 'super.appointments.slots']);
+        
+        // GET /super/appointments/new → Formulário de novo agendamento
+        $routes->get('new', 'AppointmentsController::new', ['as' => 'super.appointments.new']);
+        
+        // POST /super/appointments → Processa criação
+        $routes->post('/', 'AppointmentsController::create', ['as' => 'super.appointments.create']);
+        
+        // GET /super/appointments/(:num) → Exibe detalhes de um agendamento
+        $routes->get('(:num)', 'AppointmentsController::show/$1', ['as' => 'super.appointments.show']);
+        
+        // GET /super/appointments/(:num)/edit → Formulário de edição
+        $routes->get('(:num)/edit', 'AppointmentsController::edit/$1', ['as' => 'super.appointments.edit']);
+        
+        // PUT /super/appointments/(:num) → Processa atualização
+        $routes->put('(:num)', 'AppointmentsController::update/$1', ['as' => 'super.appointments.update']);
+        
+        // GET /super/appointments/(:num)/status → Altera status
+        $routes->get('(:num)/status', 'AppointmentsController::status/$1', ['as' => 'super.appointments.status']);
+        
+        // DELETE /super/appointments/(:num) → Remove agendamento
+        $routes->delete('(:num)', 'AppointmentsController::delete/$1', ['as' => 'super.appointments.delete']);
+    });
 });
 
 /**
